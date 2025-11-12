@@ -1,0 +1,26 @@
+package training.g2.dto.Response.ProductVariant;
+
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class VariantCreateResDTO {
+    private long id;
+    private String sku;
+    private double price;
+    private int stock;
+    private int sold;
+
+    private List<AttributeItem> attributes;
+
+    @Getter
+    @Setter
+    public static class AttributeItem {
+        private long id;
+        private String name;
+        private String value;
+    }
+}
