@@ -28,9 +28,7 @@ public class AttributeValueServiceIpm implements AttributeValueService {
     @Override
     public AttributeValue createAttributeValue(AttributeValueReq req) {
         try {
-            if (attributeValueRepository.existsByValue(req.getValue())) {
-                throw new BusinessException(ATTRIBUTE_VALUE_EXISTS);
-            }
+
             AttributeValue value = new AttributeValue();
             value.setValue(req.getValue());
             if (req.getAttribute() != null) {

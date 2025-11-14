@@ -20,7 +20,8 @@ public class LoginResDTO {
         private String email;
         private String phone;
         private String avatar;
-        private long role;
+        private String role;
+        private String gender;
         private String status;
     }
 }

@@ -12,7 +12,7 @@ import training.g2.model.User;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmailAndDeletedFalse(String email);
 
-    Optional<User> findByPhoneAndIdNot(String phone, Long id);
+    Optional<User> findByIdNot(Long id);
 
     boolean existsByEmailAndDeletedFalse(String email);
 

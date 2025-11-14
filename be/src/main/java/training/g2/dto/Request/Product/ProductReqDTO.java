@@ -1,5 +1,7 @@
 package training.g2.dto.Request.Product;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +12,8 @@ import lombok.Setter;
 public class ProductReqDTO {
     private String name;
     private String code;
+    private String description;
+    private List<String> imgURL;
     private Category category;
 
     @Getter

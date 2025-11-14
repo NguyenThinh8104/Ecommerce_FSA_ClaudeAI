@@ -28,7 +28,6 @@ import training.g2.model.ProductVariant;
 import training.g2.repository.AttributeValueRepository;
 import training.g2.repository.ProductRepository;
 import training.g2.repository.ProductVariantRepository;
-import training.g2.repository.VariantImageRepository;
 import training.g2.service.ProductVariantService;
 
 @Service
@@ -39,8 +38,7 @@ public class ProductVariantServiceImp implements ProductVariantService {
 
     public ProductVariantServiceImp(ProductRepository productRepository,
             AttributeValueRepository attributeValueRepository,
-            ProductVariantRepository productVariantRepository,
-            VariantImageRepository variantImageRepository) {
+            ProductVariantRepository productVariantRepository) {
         this.productRepository = productRepository;
         this.attributeValueRepository = attributeValueRepository;
         this.productVariantRepository = productVariantRepository;
@@ -53,35 +51,61 @@ public class ProductVariantServiceImp implements ProductVariantService {
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND));
 
-            List<VariantCreateResDTO> result = new ArrayList<>();
+            if (req.getItems() == null || req.getItems().isEmpty()) {
+                throw new BusinessException(HttpStatus.BAD_REQUEST, ATTRIBUTE_VALUE_REQUIRED);
+            }
+
+            List<String> skus = new ArrayList<>();
+            List<List<AttributeValue>> valuesList = new ArrayList<>();
+            List<Long> prices = new ArrayList<>();
+            List<Integer> stocks = new ArrayList<>();
+
             for (VariantItemReq item : req.getItems()) {
-                if (item.getValues() == null) {
+                if (item.getValues() == null || item.getValues().isEmpty()) {
                     throw new BusinessException(HttpStatus.BAD_REQUEST, ATTRIBUTE_VALUE_REQUIRED);
                 }
-                List<Long> valueIds = item.getValues()
-                        .stream()
-                        .map(value -> value.getId())
+
+                List<Long> valueIds = item.getValues().stream()
+                        .map(VariantItemReq.AttributeValue::getId)
+                        .sorted()
                         .collect(Collectors.toList());
 
                 List<AttributeValue> values = attributeValueRepository.findAllById(valueIds);
-
                 if (values.size() != valueIds.size()) {
                     throw new BusinessException(HttpStatus.BAD_REQUEST, ATTRIBUTE_VALUE_CONFLICT);
                 }
 
+                String sku = SkuHelper.generateSku(product.getCode(), values);
+
+                skus.add(sku);
+                valuesList.add(values);
+                prices.add((long) item.getPrice());
+                stocks.add(item.getStock());
+            }
+
+            if (!skus.isEmpty()) {
+                List<String> existedSkus = productVariantRepository.findSkusByProductAndSkuIn(productId, skus);
+                if (!existedSkus.isEmpty()) {
+                    throw new BusinessException(HttpStatus.BAD_REQUEST, DUPLICATE_VARIANT_EXISTS);
+                }
+            }
+
+            List<VariantCreateResDTO> result = new ArrayList<>();
+            for (int i = 0; i < skus.size(); i++) {
                 ProductVariant pv = new ProductVariant();
                 pv.setProduct(product);
-                pv.setPrice(item.getPrice());
-                pv.setStock(item.getStock());
-                pv.setValues(values);
-                pv.setSku(SkuHelper.generateSku(product.getCode(), values));
+                pv.setPrice(prices.get(i));
+                pv.setStock(stocks.get(i));
+                pv.setValues(valuesList.get(i));
+                pv.setSku(skus.get(i));
                 pv.setSold(0);
+
                 productVariantRepository.save(pv);
-                VariantCreateResDTO dto = VariantMapper.toCreateResDTO(pv);
-                result.add(dto);
+                result.add(VariantMapper.toCreateResDTO(pv));
             }
 
             return result;
+
         } catch (BusinessException e) {
             throw e;
         } catch (Exception e) {

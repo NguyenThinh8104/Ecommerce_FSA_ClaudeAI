@@ -3,6 +3,8 @@ package training.g2.util;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.StringJoiner;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -19,8 +21,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.nimbusds.jose.util.Base64;
+
+import training.g2.model.Role;
+import training.g2.model.User;
+import training.g2.repository.UserRepository;
 
 @Service
 public class SecurityUtil {
@@ -34,21 +41,23 @@ public class SecurityUtil {
     private long refreshTokenExpiration;
 
     private final JwtEncoder jwtEncoder;
+    private final UserRepository userRepo;
 
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
 
-    public SecurityUtil(JwtEncoder jwtEncoder) {
+    public SecurityUtil(JwtEncoder jwtEncoder, UserRepository userRepository) {
         this.jwtEncoder = jwtEncoder;
+        this.userRepo = userRepository;
     }
 
     public String createAccessToken(long userId, String roleCode, String email) {
         Instant now = Instant.now();
         Instant exp = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
-
+        User user = userRepo.findUserById(userId).orElse(null);
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(email) // <-- sub = email
                 .claim("uid", userId) // <-- user id ngắn
-                .claim("r", roleCode) // <-- role code ngắn
+                .claim("r", buildScope(user)) // <-- role code ngắn
                 .issuedAt(now)
                 .expiresAt(exp)
                 .build();
@@ -113,6 +122,23 @@ public class SecurityUtil {
         return Optional.ofNullable(securityContext.getAuthentication())
                 .filter(authentication -> authentication.getCredentials() instanceof String)
                 .map(authentication -> (String) authentication.getCredentials());
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        Role role = user.getRole();
+        if (role != null) {
+            // Thêm tên role
+            stringJoiner.add(role.getName());
+
+            // Thêm permission nếu có
+            if (!CollectionUtils.isEmpty(role.getPermissions())) {
+                role.getPermissions().forEach(permission -> stringJoiner.add(permission.getCode()));
+            }
+        }
+
+        return stringJoiner.toString();
     }
 
 }

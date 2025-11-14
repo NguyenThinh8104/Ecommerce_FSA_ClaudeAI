@@ -8,5 +8,7 @@ import training.g2.model.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
-    boolean existsByName(String name);
+    boolean existsByNameAndDeletedFalse(String name);
+
+    boolean existsByCodeAndDeletedFalse(String code);
 }

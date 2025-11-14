@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import training.g2.dto.Request.Product.ProductReqDTO;
 import training.g2.dto.Response.Product.ProductCreateResDTO;
 import training.g2.dto.Response.Product.ProductResDTO;
@@ -24,7 +25,9 @@ import training.g2.exception.common.BusinessException;
 import training.g2.mapper.ProductMapper;
 import training.g2.model.Category;
 import training.g2.model.Product;
+import training.g2.model.ProductImage;
 import training.g2.repository.CategoryRepository;
+import training.g2.repository.ProductImageRepository;
 import training.g2.repository.ProductRepository;
 import training.g2.service.ProductService;
 import static training.g2.constant.Constants.Message.*;
@@ -35,36 +38,56 @@ public class ProductServiceImp implements ProductService {
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
 
+    private final ProductImageRepository productImageRepository;
+
     public ProductServiceImp(ProductRepository productRepository, ProductMapper productMapper,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository, ProductImageRepository productImageRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
         this.categoryRepository = categoryRepository;
+        this.productImageRepository = productImageRepository;
     }
 
+    @Transactional
     @Override
-    public ProductCreateResDTO createProduct(ProductReqDTO productReqDTO) {
-        try {
+    public ProductCreateResDTO createProduct(ProductReqDTO req) {
 
-            Product product = productMapper.toProductEntity(productReqDTO);
-            boolean checkExitsName = productRepository.existsByName(productReqDTO.getName());
-            if (checkExitsName) {
-                throw new BusinessException(PRODUCT_ALREADY_EXISTS);
-            }
-            if (productReqDTO.getCategory() != null) {
-                Category cate = categoryRepository.findById(product.getCategory().getId())
-                        .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, CATEGORY_NOT_FOUND));
-                product.setCategory(cate);
-            }
-            Product productSave = productRepository.save(product);
-            ProductCreateResDTO dto = productMapper.toCreateDTO(productSave);
-            return dto;
-
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR, ADD_PRODUCT_FAIL);
+        if (productRepository.existsByNameAndDeletedFalse(req.getName())) {
+            throw new BusinessException(PRODUCT_ALREADY_EXISTS);
         }
+        if (productRepository.existsByCodeAndDeletedFalse(req.getCode())) {
+            throw new BusinessException(CODE_ALREADY_EXISTS);
+        }
+
+        Product product = productMapper.toProductEntity(req);
+
+        if (req.getCategory() != null) {
+            Category cate = categoryRepository.findById(product.getCategory().getId())
+                    .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, CATEGORY_NOT_FOUND));
+            product.setCategory(cate);
+        }
+
+        Product saved = productRepository.save(product);
+
+        List<ProductImage> images = new ArrayList<>();
+        if (req.getImgURL() != null) {
+            for (String url : req.getImgURL()) {
+                if (url == null || url.isBlank())
+                    continue;
+                ProductImage img = new ProductImage();
+                img.setUrl(url);
+                img.setProduct(saved);
+                images.add(img);
+            }
+            if (!images.isEmpty())
+                productImageRepository.saveAll(images);
+            if (saved.getProductImages() != null) {
+                saved.getProductImages().clear();
+                saved.getProductImages().addAll(images);
+            }
+        }
+
+        return productMapper.toCreateDTO(saved);
     }
 
     @Override
@@ -74,6 +97,7 @@ public class ProductServiceImp implements ProductService {
                     .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND));
             current.setName(productReqDTO.getName());
             current.setCode(productReqDTO.getCode());
+            current.setDescription(productReqDTO.getDescription());
             if (productReqDTO.getCategory() != null) {
                 Category category = categoryRepository.findById(productReqDTO.getCategory().getId())
                         .orElseThrow(() -> new BusinessException(CATEGORY_NOT_FOUND));

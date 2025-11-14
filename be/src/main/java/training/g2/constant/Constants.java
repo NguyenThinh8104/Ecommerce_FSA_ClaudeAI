@@ -70,6 +70,7 @@ public class Constants {
         // Thông báo lỗi
         public static final String PRODUCT_NOT_FOUND = "Sản phẩm không tồn tại";
         public static final String PRODUCT_ALREADY_EXISTS = "Sản phẩm đã tồn tại";
+        public static final String CODE_ALREADY_EXISTS = "Code  đã tồn tại";
         public static final String ADD_PRODUCT_FAIL = "Thêm sản phẩm thất bại";
         public static final String UPDATE_PRODUCT_FAIL = "Cập nhật sản phẩm thất bại";
         public static final String DELETE_PRODUCT_FAIL = "Xóa sản phẩm thất bại";
@@ -89,6 +90,7 @@ public class Constants {
         public static final String VARIANT_DELETE_SUCCESS = "Xóa biến thể thành công";
         public static final String VARIANT_GET_SUCCESS = "Lấy danh chi tiết biến thể thành công";
         public static final String VARIANT_GET_LIST_SUCCESS = "Lấy danh sách biến thể thành công";
+        public static final String DUPLICATE_VARIANT_EXISTS = "Đã tồn tại ít nhất 1 biến thể";
 
         public static final String ATTRIBUTES_NOT_FOUND = "Thuộc tính không tồn tại";
         public static final String ATTRIBUTES_ALREADY_EXISTS = "Thuộc tính đã tồn tại";

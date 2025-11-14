@@ -1,6 +1,7 @@
 package training.g2.dto.Response.Product;
 
 import java.time.Instant;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,8 +14,10 @@ public class ProductCreateResDTO {
     private long id;
     private String name;
     private String code;
+    private String description;
     private Category category;
     private boolean deleted;
+    private List<String> imgURL;
     private Instant createdAt;
     private String createdBy;
 

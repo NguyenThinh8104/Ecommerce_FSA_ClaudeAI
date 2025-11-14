@@ -17,7 +17,8 @@ public class AuthMapper {
         u.setEmail(user.getEmail());
         u.setPhone(user.getPhone());
         u.setAvatar(user.getAvatar());
-        u.setRole(user.getRole().getId());
+        u.setRole(user.getRole().getName());
+        u.setGender(user.getGender().toString());
         u.setStatus(user.getStatus().toString());
         res.setUser(u);
         return res;
@@ -33,6 +34,8 @@ public class AuthMapper {
         userDto.setRole(dbUser.getRole().getName());
         userDto.setPhone(dbUser.getPhone());
         userDto.setAvatar(dbUser.getAvatar());
+        userDto.setGender(dbUser.getGender().toString());
+        userDto.setStatus(dbUser.getStatus());
 
         response.setUser(userDto);
         return response;

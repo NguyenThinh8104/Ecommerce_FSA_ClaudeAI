@@ -1,5 +1,9 @@
 package training.g2.config;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -10,6 +14,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -17,7 +23,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -26,8 +31,7 @@ import com.nimbusds.jose.util.Base64;
 import training.g2.util.SecurityUtil;
 
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
-
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfiguration {
     @Value("${jwt.base64-secret}")
     private String jwtKey;
@@ -76,17 +80,6 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("user");
-
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-        return jwtAuthenticationConverter;
-    }
-
-    @Bean
     public JwtEncoder jwtEncoder() {
         return new NimbusJwtEncoder(new ImmutableSecret<>(getSecretKey()));
     }
@@ -94,6 +87,31 @@ public class SecurityConfiguration {
     private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+
+            Object roleClaim = jwt.getClaims().get("r");
+
+            if (roleClaim instanceof String rolesStr) {
+                // Tách chuỗi quyền theo dấu cách
+                Arrays.stream(rolesStr.split(" "))
+                        .filter(s -> !s.isBlank())
+                        .forEach(role -> authorities.add(new SimpleGrantedAuthority(role.trim())));
+            } else if (roleClaim instanceof Collection<?> roles) {
+                // Nếu claim "r" là mảng (dạng ["ADMIN", "USER_READ", ...])
+                roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.toString())));
+            }
+
+            return authorities;
+        });
+
+        return converter;
     }
 
 }

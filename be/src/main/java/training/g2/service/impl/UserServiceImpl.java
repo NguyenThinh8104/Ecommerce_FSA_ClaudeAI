@@ -91,9 +91,12 @@ public class UserServiceImpl implements UserService {
             }
 
             String password = passwordEncoder.encode(user.getPassword());
+
             user.setPassword(password);
-            user.setStatus(UserStatusEnum.NOT_ACTIVE);
             user.setDeleted(false);
+            Role role = roleRepository.findByName("USER").get();
+            user.setRole(role);
+            user.setStatus(UserStatusEnum.NOT_ACTIVE);
             User saveUser = userRepository.save(user);
             CreateUserResDTO dto = userMapperDTO.toCreateDTO(saveUser);
             return dto;
@@ -111,15 +114,6 @@ public class UserServiceImpl implements UserService {
         try {
             User currentUser = userRepository.findById(userDTO.getId())
                     .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, USER_NOT_FOUND));
-
-            userRepository.findByPhoneAndIdNot(userDTO.getPhone(), userDTO.getId())
-                    .ifPresent(user -> {
-                        throw new BusinessException(HttpStatus.CONFLICT, INVALID_PHONE_NUMBER);
-                    });
-
-            currentUser.setFullName(userDTO.getFullName());
-            currentUser.setPhone(userDTO.getPhone());
-            currentUser.setGender(userDTO.getGender());
             currentUser.setStatus(userDTO.getStatus());
 
             userRepository.save(currentUser);
@@ -237,6 +231,7 @@ public class UserServiceImpl implements UserService {
             user.setPassword(password);
             user.setStatus(UserStatusEnum.NOT_ACTIVE);
             user.setDeleted(false);
+            user.setGender(registerDTO.getGender());
             Role role = roleRepository.findByName("USER").orElseThrow(() -> new BusinessException(ROLE_NOT_FOUND));
             user.setRole(role);
             userRepository.save(user);

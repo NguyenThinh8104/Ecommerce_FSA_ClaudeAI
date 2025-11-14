@@ -33,8 +33,10 @@ public class Product {
 
     private String name;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
     private String code;
+
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "cate_id")
@@ -45,7 +47,7 @@ public class Product {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ProductImage> variantImages = new ArrayList<>();
+    private List<ProductImage> productImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     private List<Attribute> attributes;

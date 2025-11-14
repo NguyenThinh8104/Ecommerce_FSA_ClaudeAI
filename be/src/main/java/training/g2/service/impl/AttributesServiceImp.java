@@ -28,9 +28,6 @@ public class AttributesServiceImp implements AttributeService {
     @Override
     public Attribute create(AttributeReq req) {
         try {
-            if (attributeRepository.existsByCodeOrName(req.getCode(), req.getName())) {
-                throw new BusinessException(ATTRIBUTES_CODE_OR_NAME_IS_EXISTED);
-            }
             Attribute entity = new Attribute();
             entity.setCode(req.getCode());
             entity.setName(req.getName());
@@ -53,9 +50,6 @@ public class AttributesServiceImp implements AttributeService {
     @Override
     public Attribute update(long id, AttributeReq req) {
         try {
-            if (attributeRepository.existsByCodeOrNameAndIdNot(req.getCode(), req.getName(), id)) {
-                throw new BusinessException(ATTRIBUTES_CODE_OR_NAME_IS_EXISTED);
-            }
             Attribute entity = attributeRepository.findById(id)
                     .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, ATTRIBUTES_NOT_FOUND));
 

@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -65,35 +66,42 @@ public class AuthController {
 
         @PostMapping("/login")
         public ResponseEntity<ApiResponse<LoginResDTO>> login(@RequestBody LoginReqDTO loginDto) {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                                loginDto.getEmail(), loginDto.getPassword());
+                try {
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                                        loginDto.getEmail(), loginDto.getPassword());
 
-                Authentication authentication = authenticationManagerBuilder.getObject()
-                                .authenticate(authenticationToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                        Authentication authentication = authenticationManagerBuilder.getObject()
+                                        .authenticate(authenticationToken);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                User dbUser = userService.getUserByEmail(loginDto.getEmail());
+                        User dbUser = userService.getUserByEmail(loginDto.getEmail());
 
-                if (dbUser.getStatus() == UserStatusEnum.BAN) {
-                        throw new BusinessException(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa (banned)");
+                        if (dbUser.getStatus() == UserStatusEnum.BAN) {
+                                throw new BusinessException(HttpStatus.FORBIDDEN,
+                                                "Tài khoản của bạn đã bị khóa (banned)");
+                        }
+
+                        if (dbUser.getStatus() == UserStatusEnum.NOT_ACTIVE) {
+                                throw new BusinessException(HttpStatus.FORBIDDEN,
+                                                "Tài khoản chưa được kích hoạt, vui lòng kiểm tra email");
+                        }
+
+                        String roleCode = dbUser.getRole().getName();
+                        String accessToken = securityUtil.createAccessToken(dbUser.getId(), roleCode,
+                                        dbUser.getEmail());
+                        String refreshToken = securityUtil.createRefreshToken(dbUser.getId(), roleCode,
+                                        dbUser.getEmail());
+
+                        LoginResDTO dto = AuthMapper.mapToLoginResponse(dbUser, accessToken);
+                        tokenService.saveNewToken(dbUser, refreshToken, TokenTypeEnum.REFRESH_TOKEN);
+
+                        ResponseCookie cookie = buildRefreshCookie(refreshToken, (int) refreshTokenExpiration);
+                        return ResponseEntity.ok()
+                                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                                        .body(new ApiResponse<>("Đăng nhập thành công", dto));
+                } catch (BadCredentialsException ex) {
+                        throw new BusinessException(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không đúng");
                 }
-
-                if (dbUser.getStatus() == UserStatusEnum.NOT_ACTIVE) {
-                        throw new BusinessException(HttpStatus.FORBIDDEN,
-                                        "Tài khoản chưa được kích hoạt, vui lòng kiểm tra email");
-                }
-
-                String roleCode = dbUser.getRole().getName();
-                String accessToken = securityUtil.createAccessToken(dbUser.getId(), roleCode, dbUser.getEmail());
-                String refreshToken = securityUtil.createRefreshToken(dbUser.getId(), roleCode, dbUser.getEmail());
-
-                LoginResDTO dto = AuthMapper.mapToLoginResponse(dbUser, accessToken);
-                tokenService.saveNewToken(dbUser, refreshToken, TokenTypeEnum.REFRESH_TOKEN);
-
-                ResponseCookie cookie = buildRefreshCookie(refreshToken, (int) refreshTokenExpiration);
-                return ResponseEntity.ok()
-                                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                                .body(new ApiResponse<>("Đăng nhập thành công", dto));
         }
 
         @GetMapping("/account")
