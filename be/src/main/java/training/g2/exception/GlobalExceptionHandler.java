@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,8 +15,6 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import training.g2.exception.common.BusinessException;
 import training.g2.model.ApiResponse;
-
-import static training.g2.constant.Constants.Message.INVENTORY_OPTIMISTIC_LOCK_FAIL;
 
 @RestControllerAdvice
 @Slf4j
@@ -75,5 +72,4 @@ public class GlobalExceptionHandler {
                                 ex.getMessage());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
-
 }
