@@ -1,7 +1,9 @@
 package training.g2.dto.Response.Product;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +17,10 @@ public class ProductResDTO {
     private String code;
     private Category category;
     private boolean deleted;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime createdAt;
+    @JsonFormat (pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
 

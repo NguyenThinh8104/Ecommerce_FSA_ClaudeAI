@@ -1,9 +1,11 @@
 package training.g2.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -20,6 +22,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.cglib.core.Local;
 import training.g2.util.SecurityUtil;
 
 @Entity
@@ -53,8 +56,10 @@ public class Product {
     private List<Attribute> attributes;
 
     private boolean deleted;
-    private Instant createdAt;
-    private Instant updatedAt;
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime createdAt;
+    @JsonFormat (pattern = "dd-MM-yyyy HH:mm:ss")
+    private LocalDateTime updatedAt;
     private String createdBy;
     private String updatedBy;
 
@@ -64,7 +69,7 @@ public class Product {
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 
-        this.createdAt = Instant.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -73,7 +78,7 @@ public class Product {
                 ? SecurityUtil.getCurrentUserLogin().get()
                 : "";
 
-        this.updatedAt = Instant.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
 }

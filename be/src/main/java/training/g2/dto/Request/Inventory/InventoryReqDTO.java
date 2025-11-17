@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class InventoryReqDTO {
+    private long productVariantId;
     private int quantity;
     private int maximum;
     private int minimum;
