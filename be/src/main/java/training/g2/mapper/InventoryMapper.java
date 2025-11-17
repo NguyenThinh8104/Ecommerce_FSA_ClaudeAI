@@ -19,4 +19,15 @@ public class InventoryMapper {
 
         return inventoryResDTO;
     }
+
+    public static InventoryResDTO InventoryToInventoryResDTO(Inventory inventory) {
+        InventoryResDTO inventoryResDTO = new InventoryResDTO();
+        inventoryResDTO.setProductVariantId(inventory.getProductVariantId());
+        inventoryResDTO.setQuantity(inventory.getQuantity());
+        inventoryResDTO.setMinimum(inventory.getMinimum());
+        inventoryResDTO.setMaximum(inventory.getMaximum());
+        inventoryResDTO.setLastInAt(inventory.getLastInAt());
+        inventoryResDTO.setLastOutAt(inventory.getLastOutAt());
+        return inventoryResDTO;
+    }
 }

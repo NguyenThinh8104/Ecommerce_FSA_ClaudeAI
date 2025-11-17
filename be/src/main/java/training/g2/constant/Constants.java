@@ -124,17 +124,8 @@ public class Constants {
         public static final String ROLE_UPDATED_SUCCESS = "Cập nhật vai trò thành công";
         public static final String ROLE_DELETED_SUCCESS = "Xóa vai trò thành công";
 
-        public static final String INVENTORY_NOT_FOUND = "Không tìm thấy thông tin kho.";
-        public static final String INVENTORY_ADJUST_QUANTITY_INVALID = "Số lượng điều chỉnh phải lớn hơn 0";
-        public static final String INVENTORY_NOT_ENOUGH_STOCK = "Không đủ hàng tồn kho để thực hiện thao tác";
-        public static final String INVENTORY_ADJUST_SUCCESS = "Điều chỉnh kho thành công";
-        public static final String INVENTORY_ADJUST_FAIL = "Điều chỉnh kho không thành công";
-        public static final String INVENTORY_OPTIMISTIC_LOCK_FAIL = "Dữ liệu kho vừa bị thay đổi bởi một tác nhân khác.";
-        public static final String INVENTORY_MIN_MAX_FAIL = "Min không được lớn hơn max.";
-
         public static final String CONTACT_MESSAGE_NOT_FOUND = "Liên hệ không tồn tại";
     }
-
 
     public static final class Regex {
         // public static final String REGEX_PASSWORD = "$d{8}^";
