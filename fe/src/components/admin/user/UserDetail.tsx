@@ -26,10 +26,14 @@ export default function UserDetail({
             <b>Role ID:</b> {user.role?.id}
           </div>
           <div>
-            <b>Trạng thái:</b> {user.status}
+            <b>Trạng thái:</b> {" "}
+            {user.status === "ACTIVE" ? "Đã Kích Hoạt"
+            : user.status === "NOT_ACTIVE" ? "Chưa Kích Hoạt" 
+            : "Bị Cấm"}
           </div>
           <div>
-            <b>Giới tính:</b> {user.gender ?? "-"}
+            <b>Giới tính:</b> {" "}
+            {user.gender === "MALE" ? "Nam" : "Nữ"}
           </div>
         </div>
 

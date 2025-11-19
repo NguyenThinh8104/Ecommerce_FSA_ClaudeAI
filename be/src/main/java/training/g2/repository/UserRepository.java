@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Optional<User> findUserById(Long id);
 
+    long countByDeletedFalse();
+
 }

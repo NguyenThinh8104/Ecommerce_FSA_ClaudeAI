@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCurrentApp } from "../context/AppContext";
 import { logoutApi } from "@/api/auth.api";
 import { toSlug } from "@/utils/slug";
+import avatarDefault from "@/assets/img/avatar-default.png";
+
 // ---------- util ----------
 type ClassValue = string | false | null | undefined;
 // eslint-disable-next-line react-refresh/only-export-components
@@ -98,7 +100,7 @@ const AccountMenu: React.FC<{
           aria-expanded={open}
         >
           <img
-            src={userView.avatarUrl}
+            src={userView?.avatarUrl ? userView.avatarUrl : avatarDefault}
             alt={userView.name}
             className="h-8 w-8 rounded-full object-cover border border-slate-200"
           />
@@ -155,7 +157,7 @@ const AccountMenu: React.FC<{
           <ul className="py-2 text-sm">
             <li>
               <Link
-                to="/tai-khoan"
+                to="/tai-khoan/ho-so"
                 className="block px-4 py-2 hover:bg-slate-50 text-slate-700"
                 role="menuitem"
               >
@@ -193,12 +195,14 @@ export const AppHeader: React.FC = () => {
     useCurrentApp();
   const navigate = useNavigate(); // Next.js: const router = useRouter()
 
+  console.log(user);
+
   // Map dữ liệu IUser của bạn -> UserView hiển thị
   const userView: UserView | null =
     isAuthenticated && user
       ? {
-          name: user.fullName ?? user.fullName ?? "User",
-          avatarUrl: user.avatar ?? "/placeholder-avatar.png",
+          name: user.fullName,
+          avatarUrl: user.avatar ?? avatarDefault,
         }
       : null;
 

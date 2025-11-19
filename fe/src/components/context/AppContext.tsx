@@ -6,9 +6,9 @@ interface IAppContext {
   isAuthenticated: boolean;
   isAppLoading: boolean;
   setIsAppLoading: (v: boolean) => void;
-  setUser: (v: IUser | null) => void;
+  setUser: (v: IContext | null) => void;
   setIsAuthenticated: (v: boolean) => void;
-  user: IUser | null;
+  user: IContext | null;
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -17,7 +17,7 @@ type TProps = {
 };
 export const AppProvider = (props: TProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IContext | null>(null);
   const [isAppLoading, setIsAppLoading] = useState<boolean>(true);
 
   useEffect(() => {

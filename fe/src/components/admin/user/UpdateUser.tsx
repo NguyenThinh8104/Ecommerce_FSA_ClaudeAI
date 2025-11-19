@@ -6,20 +6,12 @@ import { toast } from "react-toastify";
 type Props = { user: IUser; onClose: () => void; onSuccess: () => void };
 
 export default function UpdateUser({ user, onClose, onSuccess }: Props) {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<IUpdateUserReq>();
+  const { register, handleSubmit, reset } = useForm<IUpdateUserReq>();
 
   useEffect(() => {
     if (user) {
       reset({
         id: user.id,
-        fullName: user.fullName,
-        phone: user.phone,
-        gender: (user.gender || "MALE") as any,
         status: user.status,
       });
     }
@@ -32,10 +24,10 @@ export default function UpdateUser({ user, onClose, onSuccess }: Props) {
         toast.success("Cập nhật thành công");
         onSuccess();
       } else {
-        toast.error(res.message || "Cập nhật thất bại");
+        toast.error(res.message);
       }
     } catch (e: any) {
-      toast.error(e?.message || "Cập nhật thất bại");
+      toast.error(e?.message);
     }
   };
 
@@ -48,48 +40,14 @@ export default function UpdateUser({ user, onClose, onSuccess }: Props) {
         <h3 className="text-lg font-semibold">Cập nhật người dùng</h3>
 
         <div>
-          <label className="text-sm font-medium">
-            Họ tên <span className="text-red-500">*</span>
-          </label>
-          <input
-            {...register("fullName", { required: "Bắt buộc" })}
-            className="mt-1 w-full rounded border px-3 py-2"
-          />
-          {errors.fullName && (
-            <p className="text-xs text-red-500">{errors.fullName.message}</p>
-          )}
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <div>
-            <label className="text-sm font-medium">SĐT</label>
-            <input
-              {...register("phone")}
-              className="mt-1 w-full rounded border px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">Giới tính</label>
-            <select
-              {...register("gender")}
-              className="mt-1 w-full rounded border px-3 py-2"
-            >
-              <option value="MALE">Nam</option>
-              <option value="FEMALE">Nữ</option>
-              <option value="OTHER">Khác</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
           <label className="text-sm font-medium">Trạng thái</label>
           <select
             {...register("status")}
             className="mt-1 w-full rounded border px-3 py-2"
           >
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="NOT_ACTIVE">NOT_ACTIVE</option>
-            <option value="BAN">BAN</option>
+            <option value="ACTIVE">Đã Kích Hoạt</option>
+            <option value="NOT_ACTIVE">Chưa Kích Hoạt</option>
+            <option value="BAN">Bị Cấm</option>
           </select>
         </div>
 
