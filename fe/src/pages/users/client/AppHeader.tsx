@@ -5,7 +5,6 @@ import { useCurrentApp } from "../context/AppContext";
 import { logoutApi } from "@/api/auth.api";
 import { toSlug } from "@/utils/slug";
 import avatarDefault from "@/assets/img/avatar-default.png";
-import { NavLink } from "react-router-dom";
 
 // ---------- util ----------
 type ClassValue = string | false | null | undefined;
@@ -39,11 +38,6 @@ export const TopStrip: React.FC = () => (
 );
 
 // ---------- Category nav ----------
-const menu = [
-  { label: "TRANG CHỦ", path: "/" },
-  { label: "GIỚI THIỆU", path: "/gioi-thieu" },
-  { label: "LIÊN HỆ", path: "/lien-he" },
-];
 export const CategoryNavBar: React.FC = () => (
   <div className="border-t border-slate-200">
     <Container>
@@ -197,7 +191,7 @@ const AccountMenu: React.FC<{
 
 // ---------- Header ----------
 export const AppHeader: React.FC = () => {
-  const { user, isAuthenticated, setUser, setIsAuthenticated, wishlistCount, setWishlistCount } =
+  const { user, isAuthenticated, setUser, setIsAuthenticated } =
     useCurrentApp();
   const navigate = useNavigate(); // Next.js: const router = useRouter()
 
@@ -226,7 +220,6 @@ export const AppHeader: React.FC = () => {
     } finally {
       setUser(null);
       setIsAuthenticated(false);
-      setWishlistCount(0);   
       navigate("/"); // optional
     }
   };
@@ -251,8 +244,8 @@ export const AppHeader: React.FC = () => {
               <path d="M4 6H20M4 12H20M4 18H20" />
             </svg>
           </button>
-          <Link
-            to="/"
+          <a
+            href="/"
             className="flex items-center gap-3 font-extrabold text-xl tracking-tight"
           >
             <img
@@ -263,7 +256,7 @@ export const AppHeader: React.FC = () => {
             <span className="text-slate-900 font-black leading-none tracking-wide">
               DSH <span className="font-semibold text-slate-600">STORE</span>
             </span>
-          </Link>
+          </a>
         </div>
 
         <div className="hidden md:flex flex-1 max-w-2xl">
@@ -294,27 +287,7 @@ export const AppHeader: React.FC = () => {
             onLogin={handleLogin}
             onLogout={handleLogout}
           />
-          <Link
-            to="/wishlist" // tạm, sau này bạn làm route riêng
-            aria-label="Sản phẩm yêu thích"
-            className="relative text-slate-700 hover:text-indigo-700"
-          >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            aria-hidden
-          >
-            <path d="M12 21s-6.716-4.438-9-8.25C1.32 10.12 2.5 6 6.5 6c2 0 3.5 1.5 3.5 1.5S11.5 6 13.5 6C17.5 6 18.68 10.12 21 12.75 18.716 16.562 12 21 12 21z" />
-          </svg>
-          {wishlistCount > 0 && (
-            <span className="absolute -right-2 -top-2 rounded-full bg-rose-600 text-white text-[10px] px-1.5">
-              {wishlistCount}
-            </span>
-          )}
-        </Link>
+
           <a
             href="#"
             aria-label="Giỏ hàng"

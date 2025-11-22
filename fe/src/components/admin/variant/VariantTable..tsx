@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "services/axios.customize";
 import UpdateVariantModal from "./UpdateVariant";
@@ -9,12 +9,15 @@ interface VariantAttributes {
   name: string;
   value: string;
 }
+
 interface ListItemRes {
   id: number;
+  name: string;
   sku: string;
   price: number;
   stock: number;
   sold: number;
+  thumbnail: string;
   attributes: VariantAttributes[];
 }
 
@@ -37,6 +40,8 @@ export default function VariantTable({
   }>({ page: 1, size: 10, total: 0 });
 
   const [editing, setEditing] = useState<ListItemRes | null>(null);
+  const [inputValue, setInputValue] = useState(page);
+  const inputRef = useRef<number | null>(null);
 
   const query = useMemo(() => {
     return `page=${page}&size=${size}`;
@@ -102,19 +107,13 @@ export default function VariantTable({
     );
   };
 
-  const renderCombination = (atts: VariantAttributes[]) =>
-    atts?.map((x) => x.value).join(" / ");
-
-  // tính tổng số trang để disable nút Next hợp lý
   const totalPages = Math.max(1, Math.ceil(meta.total / meta.size));
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-white">
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-200 p-4">
         <h3 className="text-base font-semibold">Danh sách biến thể hiện có</h3>
 
-        {/* Chọn số bản ghi mỗi trang */}
         <div className="flex items-center gap-2 text-sm">
           <span>Kích thước trang:</span>
           <select
@@ -134,13 +133,13 @@ export default function VariantTable({
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto p-2">
         <table className="w-full text-sm">
           <thead className="bg-neutral-50 text-neutral-700 font-semibold">
             <tr>
               <th className="px-4 py-2 text-left">Stt</th>
-              <th className="px-4 py-2 text-left">Combination</th>
+              <th className="px-4 py-2 text-left">Ảnh</th>
+              <th className="px-4 py-2 text-left">Tên</th>
               <th className="px-4 py-2 text-left">SKU</th>
               <th className="px-4 py-2 text-left">Giá</th>
               <th className="px-4 py-2 text-left">Tồn kho</th>
@@ -154,9 +153,21 @@ export default function VariantTable({
                 <tr key={v.id} className="border-t">
                   <td className="px-4 py-3">{(page - 1) * size + idx + 1}</td>
 
-                  <td className="px-4 py-3 font-medium">
-                    {renderCombination(v.attributes)}
+                  <td className="px-4 py-3">
+                    {v.thumbnail ? (
+                      <img
+                        src={v.thumbnail}
+                        alt={v.name}
+                        className="h-12 w-12 rounded object-cover border border-neutral-200"
+                      />
+                    ) : (
+                      <span className="text-xs text-neutral-400">
+                        Không có ảnh
+                      </span>
+                    )}
                   </td>
+
+                  <td className="px-4 py-3">{v.name}</td>
                   <td className="px-4 py-3">{v.sku}</td>
                   <td className="px-4 py-3">{v.price}</td>
                   <td className="px-4 py-3">{v.stock}</td>
@@ -184,7 +195,7 @@ export default function VariantTable({
               <tr>
                 <td
                   className="px-4 py-6 text-center text-neutral-500"
-                  colSpan={7}
+                  colSpan={8}
                 >
                   Đang tải…
                 </td>
@@ -195,7 +206,7 @@ export default function VariantTable({
               <tr>
                 <td
                   className="px-4 py-6 text-center text-neutral-500"
-                  colSpan={7}
+                  colSpan={8}
                 >
                   Chưa có biến thể
                 </td>
@@ -205,7 +216,6 @@ export default function VariantTable({
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between p-4 text-sm">
         <div>
           Trang <b>{meta.page}</b> / <b>{totalPages}</b> • Tổng{" "}
@@ -219,6 +229,35 @@ export default function VariantTable({
           >
             Trước
           </button>
+
+          <input
+            type="number"
+            value={inputValue}
+            min={1}
+            max={totalPages}
+            onChange={(e) => {
+              const raw = e.target.value;
+
+              if (raw === "") {
+                setInputValue(NaN);
+                return;
+              }
+
+              const num = Number(raw);
+              setInputValue(num);
+
+              if (inputRef.current) clearTimeout(inputRef.current);
+
+              inputRef.current = window.setTimeout(() => {
+                if (!isNaN(num) && num >= 1 && num <= totalPages) {
+                  setPage(num);
+                }
+              }, 500);
+            }}
+            className="w-16 rounded-md border border-neutral-300 px-2 
+            py-1.5 text-center outline-none focus:border-blue-600 
+            focus:ring-2 focus:ring-blue-600/20"
+          />
           <button
             className="rounded-md border border-neutral-300 px-3 py-1.5 disabled:opacity-50"
             disabled={page >= totalPages || loading}
@@ -229,7 +268,6 @@ export default function VariantTable({
         </div>
       </div>
 
-      {/* Modal update */}
       {editing && (
         <UpdateVariantModal
           value={editing}
