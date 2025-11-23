@@ -2,6 +2,7 @@ package training.g2.service.impl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import training.g2.dto.request.Stock.StockInCreateReqDTO;
 import training.g2.dto.response.Stock.StockInResDTO;
 import training.g2.exception.common.BusinessException;
@@ -16,7 +17,6 @@ import training.g2.repository.StockInRepository;
 import training.g2.repository.StockRepository;
 import training.g2.service.StockInService;
 
-import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,7 @@ public class StockInServiceImpl implements StockInService {
 
 
     @Override
+    @Transactional
     public StockInResDTO createStockIn(StockInCreateReqDTO stockInCreateReqDTO) {
 
         if (stockInCreateReqDTO.getSupplierName() == null || stockInCreateReqDTO.getSupplierName().trim().isEmpty()) {
@@ -97,12 +98,14 @@ public class StockInServiceImpl implements StockInService {
     }
 
     @Override
+    @Transactional
     public List<StockInResDTO> getAllStockIn() {
         List<StockIn> stockIns = stockInRepository.findAll();
         return stockInRepository.findAll().stream().map(StockInMapper::toStockInResDTO).toList();
     }
 
     @Override
+    @Transactional
     public StockInResDTO getStockInById(Long id) {
         StockIn stockIn = stockInRepository.findById(id)
                 .orElseThrow(() ->new BusinessException(HttpStatus.NOT_FOUND, "STOCK_NOT_FOUND"));
@@ -110,6 +113,7 @@ public class StockInServiceImpl implements StockInService {
     }
 
     @Override
+    @Transactional
     public StockInResDTO comfirmStockIn(Long id) {
 
         StockIn stockIn = stockInRepository.findById(id)
@@ -139,6 +143,7 @@ public class StockInServiceImpl implements StockInService {
     }
 
     @Override
+    @Transactional
     public StockInResDTO cancelStockIn(Long id) {
         StockIn stockIn = stockInRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "STOCK_NOT_FOUND"));

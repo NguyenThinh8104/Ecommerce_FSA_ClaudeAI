@@ -6,8 +6,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StockResDTO {
+    private Long id;
     private Long variantId;
     private String sku;
+    private String productName;
+    private String variantName;
     private Integer quantity;
     private Integer reserved;
+    private Integer available;
 }

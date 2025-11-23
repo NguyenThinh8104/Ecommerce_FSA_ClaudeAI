@@ -29,6 +29,9 @@ public class StockIn {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+    private String createdBy;
+
+    private Double totalAmount;
 
     @OneToMany(mappedBy = "stockIn", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StockInItem> items = new ArrayList<>();
