@@ -1,4 +1,4 @@
-package training.g2.dto.request.Slider;
+package training.g2.dto.Request.Slider;
 
 import lombok.Getter;
 

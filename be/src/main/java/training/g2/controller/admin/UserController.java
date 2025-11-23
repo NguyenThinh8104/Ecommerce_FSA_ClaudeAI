@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import training.g2.dto.Request.User.UpdateUserReqDTO;
 import training.g2.dto.Response.User.CreateUserResDTO;
 import training.g2.dto.Response.User.UpdateUserResDTO;
+import training.g2.dto.Response.User.UserEmailResDTO;
 import training.g2.dto.Response.User.UsersResDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.ApiResponse;
@@ -68,5 +69,11 @@ public class UserController {
         userService.deleteUser(id);
 
         return new ApiResponse<>("ok", null);
+    }
+    @GetMapping("/search")
+    public ApiResponse<List<UserEmailResDTO>> searchUsersByEmail(
+            @RequestParam("email") String email) {
+        List<UserEmailResDTO> result = userService.searchUsersByEmail(email);
+        return new ApiResponse<>("OK", result);
     }
 }

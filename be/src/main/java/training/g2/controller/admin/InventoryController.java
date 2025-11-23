@@ -3,9 +3,9 @@ package training.g2.controller.admin;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import training.g2.dto.Request.Inventory.InventoryAdjustReqDTO;
-import training.g2.dto.Request.Inventory.InventoryUpdateReqDTO;
-import training.g2.dto.Response.Inventory.InventoryResDTO;
+import training.g2.dto.request.Inventory.InventoryAdjustReqDTO;
+import training.g2.dto.request.Inventory.InventoryUpdateReqDTO;
+import training.g2.dto.response.Inventory.InventoryResDTO;
 import training.g2.model.ApiResponse;
 import training.g2.service.InventoryService;
 

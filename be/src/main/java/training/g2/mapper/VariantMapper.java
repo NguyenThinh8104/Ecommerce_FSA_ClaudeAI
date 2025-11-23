@@ -17,6 +17,8 @@ public class VariantMapper {
         dto.setPrice(pv.getPrice());
         dto.setStock(pv.getStock());
         dto.setSold(pv.getSold());
+        dto.setName(pv.getName());
+        dto.setThumbnail(pv.getThumbnail());
 
         List<VariantCreateResDTO.AttributeItem> attrs = new ArrayList<>();
         for (AttributeValue v : pv.getValues()) {
@@ -38,6 +40,8 @@ public class VariantMapper {
         dto.setPrice(pv.getPrice());
         dto.setStock(pv.getStock());
         dto.setSold(pv.getSold());
+        dto.setName(pv.getName());
+        dto.setThumbnail(pv.getThumbnail());
 
         List<VariantDetailDTO.AttributeItem> attrs = new ArrayList<>();
         for (AttributeValue v : pv.getValues()) {

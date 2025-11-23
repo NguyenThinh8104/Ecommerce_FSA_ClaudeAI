@@ -3,8 +3,8 @@ package training.g2.controller.admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import training.g2.dto.request.Slider.CreateSliderRequest;
-import training.g2.dto.request.Slider.UpdateSliderRequest;
+import training.g2.dto.Request.Slider.CreateSliderRequest;
+import training.g2.dto.Request.Slider.UpdateSliderRequest;
 
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.ApiResponse;

@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import training.g2.dto.response.ProductVariant.HomeProductVariantDTO;
+import training.g2.dto.Response.ProductVariant.HomeProductVariantDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.Product;
 import training.g2.model.ProductVariant;
@@ -53,7 +53,7 @@ public class HomeService {
             dto.setProductId(pv.getProduct().getId());
             dto.setThumbnailUrl(pv.getThumbnail());
         }
-
+        dto.setSku(pv.getSku());
         dto.setPrice(BigDecimal.valueOf(pv.getPrice()));
         dto.setStock(pv.getStock());
         dto.setSold(pv.getSold());

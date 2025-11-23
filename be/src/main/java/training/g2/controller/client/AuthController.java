@@ -17,14 +17,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import training.g2.dto.Request.User.ChangePassReq;
 import training.g2.dto.Request.User.LoginReqDTO;
 import training.g2.dto.Request.User.RegisterReqDTO;
 import training.g2.dto.Response.User.CreateUserResDTO;
 import training.g2.dto.Response.User.LoginResDTO;
+import training.g2.dto.Response.User.TokenReq;
 import training.g2.dto.Response.User.UserGetAccount;
 import training.g2.exception.common.BusinessException;
 import training.g2.mapper.AuthMapper;
@@ -46,6 +50,7 @@ public class AuthController {
         private final UserService userService;
         private final TokenService tokenService;
         private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
 
         @Value("${jwt.refresh-token-validity-in-seconds}")
         private long refreshTokenExpiration;
@@ -56,12 +61,14 @@ public class AuthController {
         public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,
                         SecurityUtil securityUtil,
                         UserService userService,
-                        TokenService tokenService, UserRepository userRepository) {
+                        TokenService tokenService, UserRepository userRepository,
+                        PasswordEncoder passwordEncoder) {
                 this.authenticationManagerBuilder = authenticationManagerBuilder;
                 this.securityUtil = securityUtil;
                 this.userService = userService;
                 this.tokenService = tokenService;
                 this.userRepository = userRepository;
+                this.passwordEncoder = passwordEncoder;
         }
 
         @PostMapping("/login")
@@ -105,11 +112,14 @@ public class AuthController {
         }
 
         @GetMapping("/account")
-        public ResponseEntity<UserGetAccount> getAccount() {
+        public ResponseEntity<ApiResponse<UserGetAccount>> getAccount() {
                 String email = SecurityUtil.getCurrentUserLogin().orElse("");
                 User currentUserDB = userService.getUserByEmail(email);
                 UserGetAccount userGetAccount = AuthMapper.mapToUserGetAccount(currentUserDB);
-                return ResponseEntity.ok(userGetAccount);
+                ApiResponse<UserGetAccount> apiResponse = new ApiResponse<>();
+                apiResponse.setData(userGetAccount);
+                apiResponse.setMessage("Lấy thông tin thành công");
+                return ResponseEntity.ok().body(apiResponse);
         }
 
         @GetMapping("/refresh")
@@ -182,6 +192,25 @@ public class AuthController {
                 headers.setLocation(URI.create(frontendLoginUrl));
 
                 return ResponseEntity.status(302).headers(headers).build();
+        }
+
+        @PostMapping("/update-password")
+        public ResponseEntity<ApiResponse<User>> updatePassword(
+                        @RequestBody ChangePassReq req) {
+                User user = tokenService.validateToken(req.getToken());
+                String password = passwordEncoder.encode(req.getPassword());
+                user.setStatus(UserStatusEnum.ACTIVE);
+                user.setPassword(password);
+                userRepository.save(user);
+                tokenService.deleteToken(req.getToken());
+                return ResponseEntity.ok().body(new ApiResponse<User>("Cập nhật mật khẩu thành công", user));
+
+        }
+
+        @PostMapping("/resend-update-password")
+        public ResponseEntity<ApiResponse<Void>> resend(@RequestBody TokenReq req) {
+                userService.resendUpdatePassword(req.getToken());
+                return ResponseEntity.ok(new ApiResponse<>("Đã gửi email đặt lại mật khẩu mới", null));
         }
 
 }

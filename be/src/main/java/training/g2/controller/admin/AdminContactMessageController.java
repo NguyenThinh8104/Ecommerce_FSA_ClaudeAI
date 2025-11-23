@@ -1,6 +1,7 @@
 package training.g2.controller.admin;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.ApiResponse;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin/contact-message")
+@PreAuthorize("hasRole('MESSAGE_MANAGE')")
 public class AdminContactMessageController {
     private final ContactMessageServiceImpl contactMessageService;
 

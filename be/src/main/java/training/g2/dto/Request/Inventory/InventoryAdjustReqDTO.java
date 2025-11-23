@@ -1,4 +1,4 @@
-package training.g2.dto.Request.Inventory;
+package training.g2.dto.request.Inventory;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

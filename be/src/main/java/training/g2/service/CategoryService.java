@@ -23,4 +23,6 @@ public interface CategoryService {
 
     List<CategoryResDTO> getChildCategories();
 
+    List<CategoryResDTO> getTreeCategory();
+
 }

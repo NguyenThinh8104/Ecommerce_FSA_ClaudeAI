@@ -2,9 +2,9 @@ package training.g2.controller.client;
 
 
 import org.springframework.web.bind.annotation.*;
-import training.g2.dto.request.Cart.AddToCartRequest;
-import training.g2.dto.request.Cart.UpdateCartQuantityRequest;
-import training.g2.dto.response.Cart.CartResponse;
+import training.g2.dto.Request.Cart.AddToCartRequest;
+import training.g2.dto.Request.Cart.UpdateCartQuantityRequest;
+import training.g2.dto.Response.Cart.CartResponse;
 import training.g2.model.ApiResponse;
 import training.g2.model.User;
 import training.g2.service.CartService;

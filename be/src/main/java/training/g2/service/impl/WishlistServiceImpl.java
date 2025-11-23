@@ -11,7 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import training.g2.dto.response.Wishlist.WishlistItemResponse;
+import training.g2.dto.Response.Wishlist.WishlistItemResponse;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.model.Product;

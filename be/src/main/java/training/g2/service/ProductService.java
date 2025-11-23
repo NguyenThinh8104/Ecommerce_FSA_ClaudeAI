@@ -6,6 +6,7 @@ import training.g2.dto.Request.Product.ProductReqDTO;
 import training.g2.dto.Response.Product.ProductCreateResDTO;
 import training.g2.dto.Response.Product.ProductResDTO;
 import training.g2.dto.Response.Product.ProductUpdateResDTO;
+import training.g2.dto.Response.Product.VariantDetailResDTO;
 import training.g2.dto.common.PaginationDTO;
 
 public interface ProductService {
@@ -20,4 +21,6 @@ public interface ProductService {
             String sortField, String sortDirection);
 
     void deleteProduct(long id);
+
+    VariantDetailResDTO findVariantDetailByProduct(long productId, String sku);
 }

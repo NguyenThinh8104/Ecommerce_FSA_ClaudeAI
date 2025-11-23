@@ -1,4 +1,4 @@
-package training.g2.dto.response.User;
+package training.g2.dto.Response.User;
 
 import lombok.Getter;
 import lombok.Setter;

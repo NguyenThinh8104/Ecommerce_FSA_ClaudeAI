@@ -18,6 +18,7 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     boolean existsByToken(String token);
 
+    // ham nay xoá all token ko nên dùng
     void deleteByUser(User user);
 
     void deleteByUserAndType(User user, TokenTypeEnum type);
@@ -26,5 +27,7 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     @Query("SELECT t.user FROM Token t WHERE t.token = :token")
     Optional<User> findUserByToken(@Param("token") String token);
+
+    void deleteByToken(String token);
 
 }

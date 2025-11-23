@@ -1,4 +1,4 @@
-package training.g2.dto.request.Wishlist;
+package training.g2.dto.Request.Wishlist;
 
 import lombok.Getter;
 import lombok.Setter;

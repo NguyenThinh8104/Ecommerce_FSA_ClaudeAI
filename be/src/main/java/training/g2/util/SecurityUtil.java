@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -104,6 +105,13 @@ public class SecurityUtil {
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
     }
 
+    public User getCurrentUser() {
+        return getCurrentUserLogin()
+                .flatMap(userRepo::findByEmailAndDeletedFalse)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng hiện tại"));
+    }
+
+
     private static String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
@@ -139,6 +147,15 @@ public class SecurityUtil {
         }
 
         return stringJoiner.toString();
+    }
+    public Long getCurrentUserId() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication auth = context.getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
+            Number uid = jwt.getClaim("uid");
+            return uid != null ? uid.longValue() : null;
+        }
+        return null;
     }
 
 }

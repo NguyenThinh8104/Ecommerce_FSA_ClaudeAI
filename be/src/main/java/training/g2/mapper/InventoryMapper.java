@@ -1,6 +1,6 @@
 package training.g2.mapper;
 
-import training.g2.dto.Response.Inventory.InventoryResDTO;
+import training.g2.dto.response.Inventory.InventoryResDTO;
 import training.g2.model.Inventory;
 
 public class InventoryMapper {

@@ -10,4 +10,5 @@ public interface CloudinaryService {
     String uploadAvatar(MultipartFile file, Long userId);
 
     String uploadFiles(MultipartFile files, String folder);
+    String uploadVoucherImg(MultipartFile file, String voucherCode);
 }

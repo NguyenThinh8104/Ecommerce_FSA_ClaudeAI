@@ -25,4 +25,15 @@ public interface AttributeRepository extends JpaRepository<Attribute, Long> {
             """)
     List<Attribute> findAllAttributeByProductId(@Param("productId") long productId);
 
+    @Query("""
+                SELECT DISTINCT a FROM Attribute a
+                JOIN a.product p
+                JOIN p.category c
+                WHERE c.id = :categoryId
+                  AND a.deleted = false
+                  AND p.deleted = false
+                  AND c.deleted = false
+            """)
+    List<Attribute> findAllByCategoryId(@Param("categoryId") Long categoryId);
+
 }

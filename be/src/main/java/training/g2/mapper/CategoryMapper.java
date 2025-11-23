@@ -16,6 +16,8 @@ public interface CategoryMapper {
     @Mapping(source = "parent.id", target = "parentId")
     CategoryResDTO toDto(Category category);
 
+    CategoryResDTO.ChildCategoryDTO toChildDto(Category category);
+
     @Mapping(source = "parent.id", target = "parentId")
     CategoryCreateResDTO toCreatedDTO(Category category);
 

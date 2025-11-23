@@ -1,4 +1,4 @@
-package training.g2.dto.Request.Attribute;
+package training.g2.dto.request.Attribute;
 
 import lombok.Getter;
 import lombok.Setter;

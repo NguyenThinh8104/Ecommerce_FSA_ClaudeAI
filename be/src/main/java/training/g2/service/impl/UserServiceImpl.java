@@ -1,5 +1,6 @@
 package training.g2.service.impl;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -7,7 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.criteria.Predicate;
@@ -17,29 +21,35 @@ import static training.g2.constant.Constants.UserExceptionInformation.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static training.g2.constant.Constants.Message.*;
 
+import training.g2.dto.Request.User.PasswordReqDTO;
+import training.g2.dto.Request.User.ProfileReqDTO;
 import training.g2.dto.Request.User.RegisterReqDTO;
 import training.g2.dto.Request.User.UpdateUserReqDTO;
 import training.g2.dto.Response.User.CreateUserResDTO;
+import training.g2.dto.Response.User.ProfileResDTO;
 import training.g2.dto.Response.User.UpdateUserResDTO;
 import training.g2.dto.Response.User.UsersResDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.mapper.UserMapperDTO;
 import training.g2.model.Role;
+import training.g2.model.Token;
 import training.g2.model.User;
 import training.g2.model.enums.TokenTypeEnum;
 import training.g2.model.enums.UserStatusEnum;
 import training.g2.repository.RoleRepository;
+import training.g2.repository.TokenRepository;
 import training.g2.repository.UserRepository;
 import training.g2.service.EmailService;
 import training.g2.service.TokenService;
 import training.g2.service.UserService;
-
+import training.g2.dto.Response.User.*;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -48,18 +58,23 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final TokenRepository tokenRepository;
     @Value("${app.base-url}")
     private String baseUrl;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
             UserMapperDTO userMapperDTO, RoleRepository roleRepository, TokenService tokenService,
-            EmailService emailService) {
+            EmailService emailService, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapperDTO = userMapperDTO;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
         this.emailService = emailService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -97,8 +112,19 @@ public class UserServiceImpl implements UserService {
             Role role = roleRepository.findByName("USER").get();
             user.setRole(role);
             user.setStatus(UserStatusEnum.NOT_ACTIVE);
+            user.setProvider("ADMIN_CREATE");
             User saveUser = userRepository.save(user);
             CreateUserResDTO dto = userMapperDTO.toCreateDTO(saveUser);
+
+            String token = tokenService.generatePasswordUpdateToken(saveUser);
+            String link = frontendUrl + "/update-password?token=" + token;
+
+            emailService.sendUpdatePasswordEmail(
+                    saveUser.getEmail(),
+                    saveUser.getFullName(),
+                    link,
+                    10);
+
             return dto;
 
         } catch (BusinessException e) {
@@ -232,6 +258,7 @@ public class UserServiceImpl implements UserService {
             user.setStatus(UserStatusEnum.NOT_ACTIVE);
             user.setDeleted(false);
             user.setGender(registerDTO.getGender());
+            user.setProvider("LOCAL");
             Role role = roleRepository.findByName("USER").orElseThrow(() -> new BusinessException(ROLE_NOT_FOUND));
             user.setRole(role);
             userRepository.save(user);
@@ -248,5 +275,133 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR, CREATE_USER_FAIL_MESSAGE, e);
         }
     }
+
+    @Override
+    public Role getRoleByName(String name) {
+        Role role = roleRepository.findByName(name).get();
+        return role;
+    }
+
+    @Override
+    public CreateUserResDTO saveUser(User user) {
+        User saveUser = userRepository.save(user);
+        CreateUserResDTO dto = userMapperDTO.toCreateDTO(saveUser);
+        return dto;
+    }
+
+    @Override
+    public User findByEmail(String mail) {
+        Optional<User> opUser = userRepository.findByEmailAndDeletedFalse(mail);
+        if (opUser.isPresent()) {
+            User user = opUser.get();
+            return user;
+        }
+        return null;
+    }
+
+    @Override
+    public void resendUpdatePassword(String oldToken) {
+        Token existingToken = tokenRepository.findByToken(oldToken)
+                .orElseThrow(() -> new BusinessException("Token không tồn tại hoặc đã bị xoá"));
+
+        User user = existingToken.getUser();
+
+        tokenRepository.delete(existingToken);
+
+        String token = tokenService.generatePasswordUpdateToken(user);
+
+        String updateLink = frontendUrl + "/update-password?token=" + token;
+
+        emailService.sendUpdatePasswordEmail(
+                user.getEmail(),
+                user.getFullName(),
+                updateLink, 10);
+
+    }
+    private Long extractUserIdFromJwt() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
+            Number n = jwt.getClaim("uid"); // claim "uid" do bạn set trong SecurityUtil
+            if (n != null) return n.longValue();
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public ProfileResDTO updateProfile(ProfileReqDTO profileDTO) {
+        try {
+            Long userId = extractUserIdFromJwt();
+            if (userId == null) {
+                throw new BusinessException(HttpStatus.UNAUTHORIZED, "Token không hợp lệ hoặc thiếu JWT");
+            }
+
+            User currentUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, USER_NOT_FOUND));
+
+
+            if (userRepository.existsByPhoneAndDeletedFalse(profileDTO.getPhone()) && (currentUser.getId()!=
+                    userRepository.findByPhoneAndDeletedFalse(profileDTO.getPhone()).get().getId()))  {
+                throw new BusinessException(PHONE_ALREADY_EXISTS_MESSAGE);
+            }
+
+            currentUser.setFullName(profileDTO.getFullName().trim());
+            currentUser.setPhone(profileDTO.getPhone().trim());
+            currentUser.setGender(profileDTO.getGender());
+            if (profileDTO.getAvatar() != null && !profileDTO.getAvatar().isEmpty()) {
+                currentUser.setAvatar(profileDTO.getAvatar());
+            }
+
+            return userMapperDTO.toProfileDTO(currentUser);
+
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception ex) {
+            throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR, UPDATE_USER_FAIL_MESSAGE, ex);
+        }
+    }
+
+
+    @Override
+    @Transactional
+    public boolean changePassword(PasswordReqDTO req) {
+
+        Long userId = extractUserIdFromJwt();
+        User user = null;
+        if (userId != null) {
+            user = userRepository.findById(userId)
+                    .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, USER_NOT_FOUND));
+        }
+        if (!passwordEncoder.matches(req.getCurrentPassword(), user.getPassword())) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST, INVALID_MATCH_PASSWORD);
+        }
+
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        userRepository.save(user);
+        return true;
+    }
+
+    @Override
+    public List<UserEmailResDTO> searchUsersByEmail(String email) {
+
+        String term = (email == null) ? "" : email.trim();
+        if (term.isEmpty()) {
+            return List.of();
+        }
+
+
+        List<User> users = userRepository
+                .findTop10ByEmailContainingIgnoreCaseAndDeletedFalse(term);
+
+
+        return users.stream()
+                .map(u -> new UserEmailResDTO(
+                        u.getId(),
+                        u.getFullName(),
+                        u.getEmail()
+                ))
+                .toList();
+    }
+
 
 }

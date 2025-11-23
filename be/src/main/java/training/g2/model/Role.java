@@ -40,7 +40,7 @@ public class Role {
     @JsonIgnore
     private List<User> users;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "role_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     @Builder.Default
     private Set<Permission> permissions = new HashSet<>();

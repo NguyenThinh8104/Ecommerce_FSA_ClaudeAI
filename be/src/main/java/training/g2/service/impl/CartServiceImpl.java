@@ -3,10 +3,10 @@ package training.g2.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import training.g2.dto.request.Cart.AddToCartRequest;
-import training.g2.dto.request.Cart.UpdateCartQuantityRequest;
-import training.g2.dto.response.Cart.CartDetailResponse;
-import training.g2.dto.response.Cart.CartResponse;
+import training.g2.dto.Request.Cart.AddToCartRequest;
+import training.g2.dto.Request.Cart.UpdateCartQuantityRequest;
+import training.g2.dto.Response.Cart.CartDetailResponse;
+import training.g2.dto.Response.Cart.CartResponse;
 import training.g2.exception.common.BusinessException;
 import training.g2.model.Cart;
 import training.g2.model.CartDetail;
@@ -48,12 +48,11 @@ public class CartServiceImpl implements CartService {
                         i.getId(),
                         i.getProductVariant().getId(),
                         i.getProductVariant().getSku(),
-                        i.getProductVariant().getProduct().getName(),
-                        i.getProductVariant().getProduct().getProductImages().get(0).getUrl(),
+                        i.getProductVariant().getProduct().getName() + " " + i.getProductVariant().getName(),
+                        i.getProductVariant().getThumbnail(),
                         i.getQuantity(),
                         i.getPrice(),
-                        i.getPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
-                ))
+                        i.getPrice().multiply(BigDecimal.valueOf(i.getQuantity()))))
                 .toList();
 
         BigDecimal subtotal = items.stream()
@@ -69,13 +68,12 @@ public class CartServiceImpl implements CartService {
         return buildCartResponse(cart);
     }
 
-
     public CartResponse addToCart(User user, AddToCartRequest req) {
 
         Cart cart = getOrCreateCart(user);
 
         ProductVariant variant = variantRepo.findById(req.variantId())
-                .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST,PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST, PRODUCT_NOT_FOUND));
 
         int stock = variant.getStock(); // tồn kho thực tế
 
@@ -96,8 +94,7 @@ public class CartServiceImpl implements CartService {
             throw new BusinessException(
                     HttpStatus.BAD_REQUEST,
                     "Số lượng yêu cầu (" + newQuantity +
-                            ") vượt quá số lượng tồn kho (" + stock + ")"
-            );
+                            ") vượt quá số lượng tồn kho (" + stock + ")");
         }
 
         // Cập nhật giỏ
@@ -116,8 +113,6 @@ public class CartServiceImpl implements CartService {
         return buildCartResponse(cart);
     }
 
-
-
     public CartResponse updateQuantity(User user, UpdateCartQuantityRequest req) {
 
         Cart cart = getOrCreateCart(user);
@@ -125,17 +120,16 @@ public class CartServiceImpl implements CartService {
         CartDetail detail = cart.getItems().stream()
                 .filter(i -> i.getId().equals(req.cartDetailId()))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST,"Sản phẩm không tồn tại trong giỏ hàng"));
+                .orElseThrow(
+                        () -> new BusinessException(HttpStatus.BAD_REQUEST, "Sản phẩm không tồn tại trong giỏ hàng"));
 
         ProductVariant variant = detail.getProductVariant();
         int stock = variant.getStock();
 
-
         if (req.quantity() > stock) {
             throw new BusinessException(HttpStatus.BAD_REQUEST,
                     "Số lượng yêu cầu (" + req.quantity() +
-                            ") vượt quá số lượng tồn kho (" + stock + ")"
-            );
+                            ") vượt quá số lượng tồn kho (" + stock + ")");
         }
 
         // Nếu quantity <= 0 → xoá item
@@ -149,7 +143,6 @@ public class CartServiceImpl implements CartService {
         cartRepo.save(cart);
         return buildCartResponse(cart);
     }
-
 
     // Remove item from cart
     public CartResponse removeItem(User user, Long cartDetailId) {

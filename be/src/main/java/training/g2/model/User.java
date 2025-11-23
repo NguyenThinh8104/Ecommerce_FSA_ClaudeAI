@@ -19,7 +19,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import training.g2.model.enums.GenderEnum;
@@ -41,8 +40,8 @@ public class User {
 
     private String password;
     private String avatar;
+    private String provider;
 
-    @NotBlank
     private String phone;
     @Enumerated(EnumType.STRING)
     private UserStatusEnum status;

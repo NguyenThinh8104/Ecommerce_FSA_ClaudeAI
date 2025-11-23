@@ -30,6 +30,7 @@ public class Constants {
         public static final String EMPTY_FULL_NAME = "Họ và tên không được để trống";
         public static final String EMPTY_USERNAME = "Tên đăng nhập không được để trống";
         public static final String EMPTY_PASSWORD = "Mật khẩu không được để trống";
+        public static final String INVALID_MATCH_PASSWORD = "Mật khẩu cũ không chính xác vui lòng nhập lại";
 
         // Contact information
         public static final String EMPTY_PHONE_NUMBER = "Số điện thoại không được để trống";
@@ -124,6 +125,7 @@ public class Constants {
         public static final String ROLE_UPDATED_SUCCESS = "Cập nhật vai trò thành công";
         public static final String ROLE_DELETED_SUCCESS = "Xóa vai trò thành công";
 
+
         public static final String INVENTORY_NOT_FOUND = "Không tìm thấy thông tin kho.";
         public static final String INVENTORY_ADJUST_QUANTITY_INVALID = "Số lượng điều chỉnh phải lớn hơn 0";
         public static final String INVENTORY_NOT_ENOUGH_STOCK = "Không đủ hàng tồn kho để thực hiện thao tác";
@@ -133,8 +135,17 @@ public class Constants {
         public static final String INVENTORY_MIN_MAX_FAIL = "Min không được lớn hơn max.";
 
         public static final String CONTACT_MESSAGE_NOT_FOUND = "Liên hệ không tồn tại";
-    }
 
+        // Voucher management
+
+        public static final String VOUCHER_NOT_FOUND = "Voucher không tồn tại";
+        public static final String VOUCHER_CODE_EXISTS = "Mã voucher đã tồn tại";
+        public static final String INVALID_DATE_RANGE = "Ngày bắt đầu phải trước ngày kết thúc";
+        public static final String INVALID_DISCOUNT_VALUE = "Giá trị giảm giá không hợp lệ";
+        public static final String INVALID_USAGE_LIMIT = "Giới hạn lượt dùng phải >= 0";
+        public static final String INVALID_USER_LIMIT = "Giới hạn mỗi người dùng phải >= 0";
+        public static final String CANNOT_UPDATE_STARTED_VOUCHER = "Chỉ được sửa voucher chưa bắt đầu";
+    }
 
     public static final class Regex {
         // public static final String REGEX_PASSWORD = "$d{8}^";

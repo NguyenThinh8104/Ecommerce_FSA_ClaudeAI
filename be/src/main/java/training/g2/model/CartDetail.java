@@ -1,30 +1,31 @@
 package training.g2.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "cart_details")
 @Getter
 @Setter
 public class CartDetail {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
     private int quantity;
-    private double price;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal price; // giá snapshot
+
     @ManyToOne
     @JoinColumn(name = "variant_id")
-    private ProductVariant productVariants;
+    private ProductVariant productVariant;
+
     @ManyToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
-
 }

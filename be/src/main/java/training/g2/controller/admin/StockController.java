@@ -1,5 +1,6 @@
 package training.g2.controller.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/admin/stock")
 public class StockController {
-    private StockService stockService;
+    private final StockService stockService;
 
     public StockController(StockService stockService) {
         this.stockService = stockService;

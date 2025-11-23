@@ -10,9 +10,11 @@ import lombok.Setter;
 public class VariantCreateResDTO {
     private long id;
     private String sku;
+    private String name;
     private double price;
     private int stock;
     private int sold;
+    private String thumbnail;
 
     private List<AttributeItem> attributes;
 

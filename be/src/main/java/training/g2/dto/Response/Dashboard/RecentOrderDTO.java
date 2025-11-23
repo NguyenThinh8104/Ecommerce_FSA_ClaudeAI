@@ -1,4 +1,4 @@
-package training.g2.dto.Response.Dashboard;
+package training.g2.dto.response.Dashboard;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

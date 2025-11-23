@@ -4,7 +4,7 @@ import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import training.g2.dto.Response.Dashboard.*;
+import training.g2.dto.response.Dashboard.*;
 import training.g2.model.Order;
 import training.g2.model.enums.PaymentStatusEnum;
 import training.g2.repository.*;

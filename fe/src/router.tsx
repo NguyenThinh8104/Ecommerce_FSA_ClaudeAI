@@ -32,6 +32,9 @@ import GoogleOAuthHandler from "./pages/auth/GoogleOAuthHandler";
 import UpdatePasswordPage from "./pages/auth/UpdatePasswordPage";
 import AboutPage from "./pages/users/AboutPage";
 import CategoryPage from "./pages/users/FilterPage";
+import { CartPage } from "./pages/users/client/CardPage";
+import { CheckoutPage } from "./pages/users/client/CheckoutPage";
+import VoucherListPage from "pages/admin/VoucherList.tsx";
 export const ROUTER = createBrowserRouter([
   {
     path: "/",
@@ -55,6 +58,8 @@ export const ROUTER = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "gioi-thieu", element: <AboutPage /> },
+      { path: "cart", element: <CartPage /> },
+
     ],
   },
   {
@@ -65,6 +70,7 @@ export const ROUTER = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
+      { path: "checkout", element: <CheckoutPage /> },
       { path: "wishlist", element: <WishlistPage /> },
       {
         path: "tai-khoan",
@@ -111,6 +117,8 @@ export const ROUTER = createBrowserRouter([
 
       { path: "sliders", element: <AdminSlidersPage /> },
       // { path: "sliders/:id", element: <SliderDetail /> },     // active only
+        // { path: "sliders/:id", element: <SliderDetail /> },     // active only
+        { path: "vouchers", element: <VoucherListPage /> },
     ],
   },
   { path: "*", element: <NotFoundPage /> },

@@ -1,4 +1,4 @@
-package training.g2.dto.request.User;
+package training.g2.dto.Request.User;
 
 import lombok.Getter;
 import lombok.Setter;

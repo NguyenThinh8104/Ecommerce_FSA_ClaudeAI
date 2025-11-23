@@ -10,6 +10,5 @@ import training.g2.model.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
     boolean existsByNameIgnoreCase(String name);
-
     Optional<Role> findByName(String name);
 }

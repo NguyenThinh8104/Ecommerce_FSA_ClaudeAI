@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,15 @@ import jakarta.transaction.Transactional;
 import training.g2.dto.Request.ProductVariant.ProductVariantCreateReqDTO;
 import training.g2.dto.Request.ProductVariant.VariantUpdateReqDTO;
 import training.g2.dto.Request.ProductVariant.ProductVariantCreateReqDTO.VariantItemReq;
+import training.g2.dto.Response.ProductVariant.FilterVariantByCateResDTO;
 import training.g2.dto.Response.ProductVariant.VariantCreateResDTO;
 import training.g2.dto.Response.ProductVariant.VariantDetailDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.helper.SkuHelper;
 import training.g2.mapper.VariantMapper;
-import training.g2.model.AttributeValue;
-import training.g2.model.Product;
-import training.g2.model.ProductVariant;
+import training.g2.model.*;
+import training.g2.model.enums.PriceRange;
 import training.g2.repository.AttributeValueRepository;
 import training.g2.repository.ProductRepository;
 import training.g2.repository.ProductVariantRepository;
@@ -42,6 +43,7 @@ public class ProductVariantServiceImp implements ProductVariantService {
         this.productRepository = productRepository;
         this.attributeValueRepository = attributeValueRepository;
         this.productVariantRepository = productVariantRepository;
+
     }
 
     @Transactional
@@ -57,8 +59,10 @@ public class ProductVariantServiceImp implements ProductVariantService {
 
             List<String> skus = new ArrayList<>();
             List<List<AttributeValue>> valuesList = new ArrayList<>();
+            List<String> names = new ArrayList<>();
             List<Long> prices = new ArrayList<>();
             List<Integer> stocks = new ArrayList<>();
+            List<String> images = new ArrayList<>();
 
             for (VariantItemReq item : req.getItems()) {
                 if (item.getValues() == null || item.getValues().isEmpty()) {
@@ -79,8 +83,10 @@ public class ProductVariantServiceImp implements ProductVariantService {
 
                 skus.add(sku);
                 valuesList.add(values);
+                names.add(item.getName());
                 prices.add((long) item.getPrice());
                 stocks.add(item.getStock());
+                images.add(item.getThumbnail());
             }
 
             if (!skus.isEmpty()) {
@@ -94,12 +100,13 @@ public class ProductVariantServiceImp implements ProductVariantService {
             for (int i = 0; i < skus.size(); i++) {
                 ProductVariant pv = new ProductVariant();
                 pv.setProduct(product);
+                pv.setName(names.get(i));
                 pv.setPrice(prices.get(i));
                 pv.setStock(stocks.get(i));
                 pv.setValues(valuesList.get(i));
                 pv.setSku(skus.get(i));
                 pv.setSold(0);
-
+                pv.setThumbnail(images.get(i));
                 productVariantRepository.save(pv);
                 result.add(VariantMapper.toCreateResDTO(pv));
             }
@@ -118,6 +125,7 @@ public class ProductVariantServiceImp implements ProductVariantService {
         try {
             ProductVariant pv = productVariantRepository.findById(variantId)
                     .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST, VARIANT_NOT_FOUND));
+            pv.setName(reqDto.getName());
             pv.setPrice(reqDto.getPrice());
             pv.setStock(reqDto.getStock());
             productVariantRepository.save(pv);
@@ -188,6 +196,76 @@ public class ProductVariantServiceImp implements ProductVariantService {
         } catch (Exception e) {
             throw new BusinessException(HttpStatus.INTERNAL_SERVER_ERROR, FAILED);
         }
+    }
+
+    @Override
+    public PaginationDTO<List<FilterVariantByCateResDTO>> getCategoryHome(
+            Long categoryId,
+            List<PriceRange> priceRanges,
+            String sort,
+            int page,
+            int size,
+            List<String> attributeValues) {
+        boolean r0_5 = false;
+        boolean r5_15 = false;
+        boolean r15Plus = false;
+
+        if (priceRanges != null) {
+            for (PriceRange pr : priceRanges) {
+                switch (pr) {
+                    case RANGE_0_5 -> r0_5 = true;
+                    case RANGE_5_15 -> r5_15 = true;
+                    case RANGE_15_PLUS -> r15Plus = true;
+                }
+            }
+        }
+
+        if (attributeValues != null && attributeValues.isEmpty()) {
+            attributeValues = null;
+        }
+
+        Sort sortOrder = switch (sort) {
+            case "popular" -> Sort.by(Sort.Direction.DESC, "sold");
+            case "price_asc" -> Sort.by(Sort.Direction.ASC, "price");
+            case "price_desc" -> Sort.by(Sort.Direction.DESC, "price");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+        };
+
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
+
+        Page<ProductVariant> variantPage = productVariantRepository
+                .findByCategoryWithMultiPriceAndAttributes(
+                        categoryId,
+                        r0_5,
+                        r5_15,
+                        r15Plus,
+                        attributeValues,
+                        pageable);
+
+        List<FilterVariantByCateResDTO> variantDtos = variantPage.getContent()
+                .stream()
+                .map(this::mapVariant)
+                .toList();
+
+        return PaginationDTO.<List<FilterVariantByCateResDTO>>builder()
+                .page(page + 1)
+                .size(size)
+                .total(variantPage.getTotalElements())
+                .items(variantDtos)
+                .build();
+    }
+
+    private FilterVariantByCateResDTO mapVariant(ProductVariant v) {
+        FilterVariantByCateResDTO dto = new FilterVariantByCateResDTO();
+        dto.setId(v.getId());
+        dto.setName(v.getProduct().getName() + " " + v.getName());
+        dto.setProductId(v.getProduct().getId());
+        dto.setSku(v.getSku());
+        dto.setPrice(v.getPrice());
+        dto.setSold(v.getSold());
+        dto.setStock(v.getStock());
+        dto.setThumbnail(v.getThumbnail());
+        return dto;
     }
 
 }

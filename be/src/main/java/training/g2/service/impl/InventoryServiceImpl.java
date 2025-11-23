@@ -4,9 +4,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import training.g2.dto.Request.Inventory.InventoryAdjustReqDTO;
-import training.g2.dto.Request.Inventory.InventoryUpdateReqDTO;
-import training.g2.dto.Response.Inventory.InventoryResDTO;
+import training.g2.dto.request.Inventory.InventoryAdjustReqDTO;
+import training.g2.dto.request.Inventory.InventoryUpdateReqDTO;
+import training.g2.dto.response.Inventory.InventoryResDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.mapper.InventoryMapper;
 import training.g2.model.Inventory;
@@ -42,7 +42,7 @@ public class InventoryServiceImpl implements InventoryService {
 
         try {
             Inventory inventory = inventoryRepository.findById(productVariantId)
-                    .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, INVENTORY_NOT_FOUND));
+                    .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, PRODUCT_NOT_FOUND));
 
 
             int newMin = inventoryUpdateReqDTO.getMinimum();

@@ -1,8 +1,8 @@
-package training.g2.dto.response.Category;
+package training.g2.dto.Response.Category;
 
 import lombok.Getter;
 import lombok.Setter;
-import training.g2.dto.response.ProductVariant.HomeProductVariantDTO;
+import training.g2.dto.Response.ProductVariant.HomeProductVariantDTO;
 
 import java.util.List;
 

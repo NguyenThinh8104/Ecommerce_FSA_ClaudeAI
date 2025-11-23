@@ -20,9 +20,14 @@ import training.g2.dto.Request.Product.ProductReqDTO;
 import training.g2.dto.Response.Product.ProductCreateResDTO;
 import training.g2.dto.Response.Product.ProductResDTO;
 import training.g2.dto.Response.Product.ProductUpdateResDTO;
+import training.g2.dto.Response.Product.VariantDetailResDTO;
+import training.g2.dto.Response.Product.VariantDetailResDTO.AttributeDTO;
+import training.g2.dto.Response.Product.VariantDetailResDTO.AttributeValueDTO;
+import training.g2.dto.Response.Product.VariantDetailResDTO.VariantDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.mapper.ProductMapper;
+import training.g2.model.AttributeValue;
 import training.g2.model.Category;
 import training.g2.model.Product;
 import training.g2.model.ProductImage;
@@ -193,6 +198,72 @@ public class ProductServiceImp implements ProductService {
                 .orElseThrow(() -> new BusinessException(PRODUCT_NOT_FOUND));
         currentProduct.setDeleted(true);
         productRepository.save(currentProduct);
+    }
+
+    @Override
+    public VariantDetailResDTO findVariantDetailByProduct(long productId, String sku) {
+        Product p = productRepository.findById(productId).orElseThrow(() -> new BusinessException(PRODUCT_NOT_FOUND));
+        VariantDetailResDTO dto = new VariantDetailResDTO();
+        dto.setId(p.getId());
+        dto.setName(p.getName());
+        dto.setCode(p.getCode());
+        dto.setDescription(p.getDescription());
+
+        dto.setImages(
+                p.getProductImages().stream()
+                        .map(ProductImage::getUrl)
+                        .toList());
+        dto.setAttributes(
+                p.getAttributes().stream()
+                        .filter(a -> !a.isDeleted())
+                        .map(a -> {
+                            AttributeDTO ad = new AttributeDTO();
+                            ad.setId(a.getId());
+                            ad.setCode(a.getCode());
+                            ad.setName(a.getName());
+                            ad.setValues(a.getValues().stream().map(
+                                    v -> {
+                                        AttributeValueDTO vd = new AttributeValueDTO();
+                                        vd.setId(v.getId());
+                                        vd.setValue(v.getValue());
+                                        return vd;
+                                    }).toList());
+                            return ad;
+                        }).toList());
+        dto.setVariants(
+                p.getProductVariants().stream()
+                        .filter(v -> !v.isDeleted())
+                        .map(v -> {
+                            VariantDTO vd = new VariantDTO();
+                            vd.setId(v.getId());
+                            vd.setSku(v.getSku());
+                            vd.setName(v.getName());
+                            vd.setPrice(v.getPrice());
+                            vd.setStock(v.getStock());
+                            vd.setSold(v.getSold());
+                            vd.setThumbnail(v.getThumbnail());
+
+                            vd.setValueIds(
+                                    v.getValues().stream()
+                                            .map(AttributeValue::getId)
+                                            .toList());
+                            return vd;
+                        }).toList());
+
+        if (sku != null) {
+            dto.getVariants().stream()
+                    .filter(v -> sku.equalsIgnoreCase(v.getSku()))
+                    .findFirst()
+                    .ifPresentOrElse(
+                            v -> dto.setDefaultVariantId(v.getId()),
+                            () -> dto.setDefaultVariantId(
+                                    dto.getVariants().isEmpty() ? null : dto.getVariants().get(0).getId()));
+        } else {
+            dto.setDefaultVariantId(
+                    dto.getVariants().isEmpty() ? null : dto.getVariants().get(0).getId());
+        }
+
+        return dto;
     }
 
 }

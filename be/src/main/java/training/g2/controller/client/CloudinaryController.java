@@ -45,7 +45,15 @@ public class CloudinaryController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>("Upload avatar thành công", url));
     }
+    @PostMapping(value = "/vouchers/{voucherCode}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<String>> uploadVoucherImg(
+            @PathVariable String voucherCode,
+            @RequestPart("file") MultipartFile file) {
 
+        String url = cloudinaryService.uploadVoucherImg(file, voucherCode);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>("Upload voucher image thành công", url));
+    }
     @PostMapping(value = "/folders/{folder}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<String>> uploadToFolder(
             @PathVariable String folder,

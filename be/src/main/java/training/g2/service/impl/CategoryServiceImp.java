@@ -170,4 +170,15 @@ public class CategoryServiceImp implements CategoryService {
                 .toList();
     }
 
+    @Override
+    public List<CategoryResDTO> getTreeCategory() {
+        List<Category> roots = categoryRepository.findAllByDeletedFalseAndParentIsNull();
+
+        // Đảm bảo children được load (nếu dùng LAZY, nên fetch join trong query)
+        // Sau đó chỉ cần map
+        return roots.stream()
+                .map(categoryMapper::toDto)
+                .toList();
+    }
+
 }

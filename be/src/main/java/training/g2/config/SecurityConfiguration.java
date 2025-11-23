@@ -28,6 +28,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 
+import org.springframework.web.client.RestTemplate;
+import training.g2.service.UserService;
 import training.g2.util.SecurityUtil;
 
 @Configuration
@@ -36,13 +38,18 @@ public class SecurityConfiguration {
     @Value("${jwt.base64-secret}")
     private String jwtKey;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint)
+    SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+            UserService userService, CustomOAuth2SuccessHandler oAuth2SuccessHandler,
+            OAuth2FailureHandler oAuth2FailureHandler)
             throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -50,16 +57,29 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/", "/api/v1/auth/login", "/api/v1/auth/refresh", "/storage/**",
-                                        "/api/v1/auth/register", "/api/v1/email", "/v3/api-docs/**",
+                                        "/api/v1/auth/register", "/api/v1/email", "/api/v1/auth/account",
+                                        "/api/v1/auth/update-password",
+                                        "/api/v1/auth/resend-update-password",
+                                        "/api/v1/category/**",
+                                        "/api/v1/products/**",
+                                        "/v3/api-docs/**",
                                         "/api/v1/auth/activate",
                                         "/api/v1/contact-message",
                                         "/swagger-ui/**",
-                                        "/swagger-ui.html")
+                                        "/swagger-ui.html",
+                                        "/api/v1/categories",
+                                        "/api/v1/sliders",
+                                        "/api/v1/home/**",
+                                        "/api/v1/locations/**")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(user -> user.userService(new CustomOAuth2User(userService)))
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureHandler(oAuth2FailureHandler))
                 .sessionManagement((sessionManagement) -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
@@ -112,6 +132,11 @@ public class SecurityConfiguration {
         });
 
         return converter;
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
 }

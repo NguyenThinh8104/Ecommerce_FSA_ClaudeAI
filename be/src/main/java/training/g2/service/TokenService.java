@@ -7,6 +7,11 @@ import training.g2.model.User;
 import training.g2.model.enums.TokenTypeEnum;
 
 public interface TokenService {
+    String generatePasswordUpdateToken(User user);
+
+    User validateToken(String token);
+
+    void deleteToken(String token);
 
     /** Lưu refresh token mới cho user */
     Token saveNewToken(User user, String token, TokenTypeEnum type);

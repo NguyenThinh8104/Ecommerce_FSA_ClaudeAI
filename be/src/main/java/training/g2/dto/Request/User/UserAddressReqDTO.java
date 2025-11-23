@@ -1,4 +1,4 @@
-package training.g2.dto.request.User;
+package training.g2.dto.Request.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +11,9 @@ public class UserAddressReqDTO {
     private Long id;           // dùng cho update
     private String fullName;
     private String phone;
-    private String province;
-    private String district;
-    private String ward;
+    private Long provinceId;
+    private Long districtId;
+    private Long wardId;
     private String addressDetail;
     private Boolean isDefault; // có thể null
 }

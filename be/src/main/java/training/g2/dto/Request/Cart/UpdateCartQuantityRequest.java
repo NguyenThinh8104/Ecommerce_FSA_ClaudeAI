@@ -1,4 +1,4 @@
-package training.g2.dto.request.Cart;
+package training.g2.dto.Request.Cart;
 
 public record UpdateCartQuantityRequest(
         Long cartDetailId,

@@ -1,5 +1,5 @@
 package training.g2.service;
-import training.g2.dto.response.Wishlist.WishlistItemResponse;
+import training.g2.dto.Response.Wishlist.WishlistItemResponse;
 import training.g2.dto.common.PaginationDTO;
 
 import java.util.List;

@@ -1,14 +1,22 @@
 package training.g2.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import training.g2.dto.Request.Attribute.AttributeReq;
+import training.g2.dto.Response.Attribute.AttributeFilterDTO;
 import training.g2.dto.Response.Attribute.AttributeResDTO;
 import training.g2.exception.common.BusinessException;
 import training.g2.model.Attribute;
+import training.g2.model.AttributeValue;
 import training.g2.model.Product;
 import training.g2.repository.AttributeRepository;
 import training.g2.repository.ProductRepository;
@@ -116,6 +124,42 @@ public class AttributesServiceImp implements AttributeService {
 
         dto.setValues(vals);
         return dto;
+    }
+
+    @Override
+    public List<AttributeFilterDTO> getAttributeFiltersByCategory(Long categoryId) {
+
+        List<Attribute> attrs = attributeRepository.findAllByCategoryId(categoryId);
+
+        Map<String, AttributeFilterDTO> grouped = new LinkedHashMap<>();
+        Map<String, Set<String>> seenValuesByCode = new HashMap<>();
+
+        for (Attribute attr : attrs) {
+            String code = attr.getCode() != null ? attr.getCode() : String.valueOf(attr.getId());
+            String name = attr.getName();
+
+            AttributeFilterDTO dto = grouped.computeIfAbsent(code, k -> {
+                AttributeFilterDTO d = new AttributeFilterDTO();
+                d.setName(name);
+                d.setValues(new ArrayList<>());
+                return d;
+            });
+
+            Set<String> seenValues = seenValuesByCode.computeIfAbsent(code, k -> new HashSet<>());
+
+            for (AttributeValue v : attr.getValues()) {
+                if (!seenValues.add(v.getValue())) {
+                    continue;
+                }
+
+                AttributeFilterDTO.AttributeValueDTO vd = new AttributeFilterDTO.AttributeValueDTO();
+                vd.setValue(v.getValue());
+
+                dto.getValues().add(vd);
+            }
+        }
+
+        return new ArrayList<>(grouped.values());
     }
 
 }

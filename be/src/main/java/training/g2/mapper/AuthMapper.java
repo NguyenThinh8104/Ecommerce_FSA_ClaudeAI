@@ -1,6 +1,5 @@
 package training.g2.mapper;
 
-// AuthMapper.java
 import training.g2.dto.Response.User.LoginResDTO;
 import training.g2.dto.Response.User.UserGetAccount;
 import training.g2.model.User;
@@ -13,13 +12,14 @@ public class AuthMapper {
 
         LoginResDTO.UserLogin u = new LoginResDTO.UserLogin();
         u.setId(user.getId());
-        u.setFullname(user.getFullName());
+        u.setFullName(user.getFullName());
         u.setEmail(user.getEmail());
         u.setPhone(user.getPhone());
         u.setAvatar(user.getAvatar());
         u.setRole(user.getRole().getName());
-        u.setGender(user.getGender().toString());
+        u.setGender(user.getGender() != null ? user.getGender().name() : null);
         u.setStatus(user.getStatus().toString());
+
         res.setUser(u);
         return res;
     }
@@ -34,7 +34,7 @@ public class AuthMapper {
         userDto.setRole(dbUser.getRole().getName());
         userDto.setPhone(dbUser.getPhone());
         userDto.setAvatar(dbUser.getAvatar());
-        userDto.setGender(dbUser.getGender().toString());
+        userDto.setGender(dbUser.getGender() != null ? dbUser.getGender().name() : null);
         userDto.setStatus(dbUser.getStatus());
 
         response.setUser(userDto);

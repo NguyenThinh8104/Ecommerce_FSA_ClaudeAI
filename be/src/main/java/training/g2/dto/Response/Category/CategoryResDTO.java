@@ -24,5 +24,6 @@ public class CategoryResDTO {
     @Setter
     public static class ChildCategoryDTO {
         private Long id;
+        private String name;
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
-    @Query ("SELECT p.name, SUM(od.quantity), SUM(od.price * od.quantity) " +
+    @Query("SELECT p.name, SUM(od.quantity), SUM(od.price * od.quantity) " +
             "FROM OrderDetail od " +
             "JOIN od.productVariant pv " +
             "JOIN pv.product p " +

@@ -38,6 +38,18 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    public void sendUpdatePasswordEmail(String to, String username, String updateLink, int expireMinutes) {
+
+        Context ctx = new Context();
+        ctx.setVariable("username", username);
+        ctx.setVariable("updateLink", updateLink);
+        ctx.setVariable("expireMinutes", expireMinutes);
+
+        String htmlContent = templateEngine.process("update-password", ctx);
+
+        sendEmailAsync(to, "Cập nhật mật khẩu tài khoản", htmlContent, false, true);
+    }
+
     public void sendActivationEmail(String to, String username, String activationLink) {
         Context ctx = new Context();
         ctx.setVariable("username", username);

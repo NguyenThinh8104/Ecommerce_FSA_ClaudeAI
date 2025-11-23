@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import training.g2.dto.response.ProductVariant.HomeProductVariantDTO;
+import training.g2.dto.Response.ProductVariant.HomeProductVariantDTO;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.ApiResponse;
 import training.g2.service.impl.HomeService;

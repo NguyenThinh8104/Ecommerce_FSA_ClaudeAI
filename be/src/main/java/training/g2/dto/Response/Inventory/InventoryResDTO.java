@@ -1,4 +1,4 @@
-package training.g2.dto.Response.Inventory;
+package training.g2.dto.response.Inventory;
 
 import lombok.Getter;
 import lombok.Setter;

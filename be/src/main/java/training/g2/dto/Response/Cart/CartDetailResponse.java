@@ -1,4 +1,4 @@
-package training.g2.dto.response.Cart;
+package training.g2.dto.Response.Cart;
 
 import java.math.BigDecimal;
 

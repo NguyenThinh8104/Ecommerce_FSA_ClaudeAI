@@ -14,8 +14,10 @@ public class ProductVariantCreateReqDTO {
     @Setter
     public static class VariantItemReq {
         private List<AttributeValue> values;
+        private String name;
         private double price;
         private int stock;
+        private String thumbnail;
 
         @Getter
         @Setter

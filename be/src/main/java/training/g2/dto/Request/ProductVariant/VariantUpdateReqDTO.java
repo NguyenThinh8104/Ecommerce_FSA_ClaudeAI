@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VariantUpdateReqDTO {
+    private String name;
     private double price;
     private int stock;
 

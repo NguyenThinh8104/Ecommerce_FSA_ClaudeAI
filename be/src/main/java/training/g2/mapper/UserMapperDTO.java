@@ -6,6 +6,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
 import training.g2.dto.Response.User.CreateUserResDTO;
+import training.g2.dto.Response.User.ProfileResDTO;
 import training.g2.dto.Response.User.UpdateUserResDTO;
 import training.g2.dto.Response.User.UsersResDTO;
 import training.g2.model.User;
@@ -20,4 +21,5 @@ public interface UserMapperDTO extends EntityMapper<UsersResDTO, User> {
     CreateUserResDTO toCreateDTO(User user);
 
     UpdateUserResDTO toUpdateDTO(User user);
+    ProfileResDTO toProfileDTO(User user);
 }

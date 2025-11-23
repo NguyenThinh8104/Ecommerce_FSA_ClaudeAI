@@ -1,8 +1,8 @@
 package training.g2.service;
 
-import training.g2.dto.Request.Inventory.InventoryAdjustReqDTO;
-import training.g2.dto.Request.Inventory.InventoryUpdateReqDTO;
-import training.g2.dto.Response.Inventory.InventoryResDTO;
+import training.g2.dto.request.Inventory.InventoryAdjustReqDTO;
+import training.g2.dto.request.Inventory.InventoryUpdateReqDTO;
+import training.g2.dto.response.Inventory.InventoryResDTO;
 
 public interface InventoryService {
     InventoryResDTO getInventoryById(long productVariantId);

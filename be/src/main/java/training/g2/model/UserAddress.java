@@ -1,43 +1,46 @@
 package training.g2.model;
 
-import java.time.Instant;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Entity
-@Table(name = "user_address")
+@Table(name = "user_addresses")
 @Getter
 @Setter
 public class UserAddress {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private String city;
-    private String district;
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    private Instant createdAt;
-    private Instant updatedAt;
 
-    @PrePersist
-    public void handleBeforeCreate() {
-        this.createdAt = Instant.now();
-    }
+    private String fullName;
+    private String phone;
 
-    @PreUpdate
-    public void handleBeforeUpdate() {
-        this.updatedAt = Instant.now();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "province_id", nullable = false)
+    private Province province;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id", nullable = false)
+    private District district;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ward_id", nullable = false)
+    private Ward ward;
+
+
+    private String addressDetail;
+
+    private boolean isDefault = false;
+
+    private Instant createdAt = Instant.now();
+    private Instant updatedAt = Instant.now();
 }

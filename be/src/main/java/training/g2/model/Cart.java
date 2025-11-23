@@ -1,14 +1,10 @@
 package training.g2.model;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,14 +15,35 @@ import lombok.Setter;
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private double totalPrice;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Instant createdAt = Instant.now();
-    private Instant updatedAt = Instant.now();
 
+
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartDetail> items = new ArrayList<>();
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Instant.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = Instant.now();
+    }
+
+    // helper
+    public void addItem(CartDetail item) {
+        items.add(item);
+        item.setCart(this);
+    }
 }

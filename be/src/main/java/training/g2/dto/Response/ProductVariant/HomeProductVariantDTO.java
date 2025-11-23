@@ -1,16 +1,16 @@
-package training.g2.dto.response.ProductVariant;
+package training.g2.dto.Response.ProductVariant;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 
-
 @Getter
 @Setter
 public class HomeProductVariantDTO {
     private Long productId;
     private Long variantId;
+    private String sku;
     private String variantName;
     private String productName;
     private BigDecimal price;
@@ -18,4 +18,3 @@ public class HomeProductVariantDTO {
     private int sold;
     private String thumbnailUrl;
 }
-

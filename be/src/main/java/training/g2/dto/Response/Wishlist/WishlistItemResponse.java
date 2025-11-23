@@ -1,4 +1,4 @@
-package training.g2.dto.response.Wishlist;
+package training.g2.dto.Response.Wishlist;
 
 import java.math.BigDecimal;
 

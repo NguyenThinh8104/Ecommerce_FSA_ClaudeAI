@@ -105,4 +105,24 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
         return doUpload(file, options);
     }
+    @Override
+    public String uploadVoucherImg(MultipartFile file, String voucherCode) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File avatar rỗng");
+        }
+        if (voucherCode == null) {
+            throw new IllegalArgumentException("voucherCode không hợp lệ");
+        }
+
+        String publicId = folderRoot + "/vouchers/" + voucherCode + "/image";
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("public_id", publicId);
+        options.put("overwrite", true);
+        options.put("invalidate", true);
+        options.put("resource_type", "image");
+        options.put("secure", true);
+
+        return doUpload(file, options);
+    }
 }

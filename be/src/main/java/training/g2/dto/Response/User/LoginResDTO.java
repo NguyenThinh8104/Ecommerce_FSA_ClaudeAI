@@ -16,12 +16,13 @@ public class LoginResDTO {
     @Setter
     public static class UserLogin {
         private long id;
-        private String fullname;
+        private String fullName;
         private String email;
         private String phone;
         private String avatar;
         private String role;
         private String gender;
         private String status;
+        private String provider;
     }
 }

@@ -26,6 +26,7 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String token;
+    private Instant expiredAt;
     @Enumerated(EnumType.STRING)
     private TokenTypeEnum type;
     private Instant createdAt;

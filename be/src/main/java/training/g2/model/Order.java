@@ -1,22 +1,17 @@
 package training.g2.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import training.g2.model.enums.OrderStatusEnum;
 import training.g2.model.enums.PaymentMethodEnum;
 import training.g2.model.enums.PaymentStatusEnum;
-import training.g2.model.enums.ShippingStatusEnum;
 
 @Entity
 @Table(name = "orders")
@@ -33,17 +28,25 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private PaymentStatusEnum paymentStatus;
 
-    @Enumerated(EnumType.STRING)
-    private ShippingStatusEnum shippingStatus;
-    private String shippingProvider;
-    private String tracking_code;
+    // GHN INFO
+    private String ghnOrderCode;
+    private Integer ghnFee;
+
+    private LocalDateTime ghnExpectedDelivery;
 
     @Enumerated(EnumType.STRING)
     private OrderStatusEnum orderStatus;
 
+    private String uuid;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<OrderDetail> items;
 
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();

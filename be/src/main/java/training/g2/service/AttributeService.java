@@ -3,6 +3,7 @@ package training.g2.service;
 import java.util.List;
 
 import training.g2.dto.Request.Attribute.AttributeReq;
+import training.g2.dto.Response.Attribute.AttributeFilterDTO;
 import training.g2.dto.Response.Attribute.AttributeResDTO;
 import training.g2.model.Attribute;
 
@@ -15,4 +16,6 @@ public interface AttributeService {
     void delete(long attributeId);
 
     List<AttributeResDTO> getAllByProduct(long productId);
+
+    public List<AttributeFilterDTO> getAttributeFiltersByCategory(Long categoryId);
 }

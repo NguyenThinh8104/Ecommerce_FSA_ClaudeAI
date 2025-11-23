@@ -4,8 +4,8 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import training.g2.dto.request.Wishlist.WishlistRequest;
-import training.g2.dto.response.Wishlist.WishlistItemResponse;
+import training.g2.dto.Request.Wishlist.WishlistRequest;
+import training.g2.dto.Response.Wishlist.WishlistItemResponse;
 import training.g2.dto.common.PaginationDTO;
 import training.g2.model.ApiResponse;
 import training.g2.service.WishlistService;
